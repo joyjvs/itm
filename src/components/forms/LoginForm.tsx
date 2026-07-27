@@ -37,7 +37,8 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
       navigate("/");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setSubmitError(message || "Error al iniciar sesión");
+      setSubmitError(message || "Credenciales inválidas.");
+      return;
     }
   };
 

@@ -4,15 +4,6 @@ import type { User, AuthResponse } from "../types/auth.types";
 import { authService } from "../api/services/auth.service";
 import { setAuthToken, removeAuthToken } from "../api/client";
 
-const mockUser: User = {
-  id: "1",
-  firstName: "Juan Pérez",
-  email: "juan@example.com",
-  phone: "+1 234 567 890",
-  address: "Av. Principal 123, Ciudad",
-  createdAt: "2024-01-15",
-};
-
 interface AuthState {
   user: User | null;
   token: string | null;
@@ -57,7 +48,7 @@ export const useAuthStore = create<AuthState>()(
           });
         } catch (error: unknown) {
           set({
-            error: "Error al iniciar sesión",
+            error: "Credenciales inválidas.",
             isLoading: false,
           });
           throw error;

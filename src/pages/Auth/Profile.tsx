@@ -43,7 +43,7 @@ const ProfilePage = () => {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user?.name || "",
+      name: user?.firstName || "",
       email: user?.email || "",
       phone: user?.phone || "",
       address: user?.address || "",
@@ -56,14 +56,13 @@ const ProfilePage = () => {
       await updateProfile(values);
       setIsEditing(false);
     } catch (error) {
-      // El error se captura en el store y se muestra en el formulario
       console.log(error);
     }
   };
 
   const handleCancel = () => {
     form.reset({
-      name: user?.name || "",
+      name: user?.firstName || "",
       email: user?.email || "",
       phone: user?.phone || "",
       address: user?.address || "",
@@ -118,7 +117,7 @@ const ProfilePage = () => {
                   label="Nombre"
                   type="text"
                   placeholder="Nombre"
-                  value={user.name}
+                  value={user.firstName}
                 />
 
                 <InputComponent
@@ -190,7 +189,7 @@ const ProfilePage = () => {
                 <div className="flex items-center gap-3 text-lg">
                   <User className="w-5 h-5 text-blue-950" />
                   <span className="font-medium">Nombre:</span>
-                  <span>{user.name}</span>
+                  <span>{user.firstName}</span>
                 </div>
                 <div className="flex items-center gap-3 text-lg">
                   <Mail className="w-5 h-5 text-blue-950" />
