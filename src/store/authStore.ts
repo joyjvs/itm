@@ -6,7 +6,7 @@ import { setAuthToken, removeAuthToken } from "../api/client";
 
 const mockUser: User = {
   id: "1",
-  name: "Juan Pérez",
+  firstName: "Juan Pérez",
   email: "juan@example.com",
   phone: "+1 234 567 890",
   address: "Av. Principal 123, Ciudad",

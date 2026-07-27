@@ -15,16 +15,16 @@ import { User } from "lucide-react";
 const AccountComponent = () => {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
+  console.log(user?.firstName)
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          // <Button variant="outline">Open</Button>
 
           <div className="flex items-center gap-2 px-3 py-2 rounded-md">
             <User />
-            <span className="text-sm font-medium">{user?.name}</span>
+            <span className="text-sm font-medium">{user?.firstName}</span>
           </div>
         }
       />
