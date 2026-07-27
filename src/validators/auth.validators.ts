@@ -33,12 +33,17 @@ export const registerSchema = z
     confirmPassword: z.string({
       error: "Confirmar contraseña es requerido",
     }),
-    name: z
+    firstName: z
       .string({ error: "El nombre es requerido" })
       .min(2, "El nombre debe tener al menos 2 caracteres"),
     lastName: z
       .string({ error: "El apellido es requerido" })
       .min(2, "El apellido debe tener al menos 2 caracteres"),
+    address: z.string({ error: "La dirección es requerida" })
+      .min(10, "La dirección debe tener al menos 10 caracteres"),
+    phone: z.string({ error: "El teléfono es requerido" })
+      .min(8, "El teléfono debe tener al menos 8 caracteres")
+      .max(15, "El teléfono no puede exceder 15 caracteres"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden",

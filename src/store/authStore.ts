@@ -15,8 +15,10 @@ interface AuthState {
   register: (
     email: string,
     password: string,
-    name: string,
+    firstName: string,
     lastName: string,
+    address: string,
+    phone:string
   ) => Promise<void>;
   logout: () => void;
   clearError: () => void;
@@ -55,14 +57,23 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      register: async (email, password, name, lastName) => {
+      register: async (
+        email,
+        password,
+        firstName,
+        lastName,
+        address,
+        phone,
+      ) => {
         set({ isLoading: true, error: null });
         try {
           const response: AuthResponse = await authService.register({
             email,
             password,
-            name,
+            firstName,
             lastName,
+            address,
+            phone,
           });
           setAuthToken(response.access_token);
           set({
@@ -84,10 +95,18 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, token: null, error: null });
       },
 
-      changePassword: async (userId: string, currentPassword: string, newPassword: string) => {
+      changePassword: async (
+        userId: string,
+        currentPassword: string,
+        newPassword: string,
+      ) => {
         set({ isLoading: true, error: null });
         try {
-          await authService.changePassword(userId,currentPassword, newPassword);
+          await authService.changePassword(
+            userId,
+            currentPassword,
+            newPassword,
+          );
           set({ isLoading: false });
         } catch (error) {
           set({ error: (error as Error).message, isLoading: false });

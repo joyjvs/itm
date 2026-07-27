@@ -49,7 +49,7 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
-    return <Navigate to="/products" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

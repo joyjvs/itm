@@ -32,9 +32,9 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
     try {
       setSubmitError(null);
       clearError();
-      await authRegister(data.email, data.password, data.name, data.lastName);
+      await authRegister(data.email, data.password, data.firstName, data.lastName, data.address, data.phone);
       onSuccess?.();
-      navigate("/");
+      navigate("/login");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setSubmitError(message || "Error al registrarse");
@@ -57,8 +57,8 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         label="Nombre"
         placeholder="Juan"
         type="text"
-        {...register("name")}
-        error={errors.name?.message}
+        {...register("firstName")}
+        error={errors.firstName?.message}
       />
 
       <InputComponent
@@ -86,6 +86,24 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         type="password"
         {...register("password")}
         error={errors.password?.message}
+      />
+
+      <InputComponent
+        htmlForm="input-field-address"
+        label="Dirección"
+        placeholder="Av. Principal 123, Ciudad"
+        type="text"
+        {...register("address")}
+        error={errors.address?.message}
+      />
+
+      <InputComponent
+        htmlForm="input-field-phone"
+        label="Teléfono"
+        placeholder="+1 234 567 890"
+        type="text"
+        {...register("phone")}
+        error={errors.phone?.message}
       />
 
       <InputComponent
