@@ -21,7 +21,7 @@ interface AuthState {
   logout: () => void;
   clearError: () => void;
   setUser: (user: User | null) => void;
-  changePassword: (currentPassword: string, newPassword: string) => void;
+  changePassword: (userid: string, currentPassword: string, newPassword: string) => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
@@ -84,10 +84,10 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, token: null, error: null });
       },
 
-      changePassword: async (currentPassword: string, newPassword: string) => {
+      changePassword: async (userId: string, currentPassword: string, newPassword: string) => {
         set({ isLoading: true, error: null });
         try {
-          await authService.changePassword(currentPassword, newPassword);
+          await authService.changePassword(userId,currentPassword, newPassword);
           set({ isLoading: false });
         } catch (error) {
           set({ error: (error as Error).message, isLoading: false });

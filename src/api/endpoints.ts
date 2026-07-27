@@ -7,6 +7,7 @@ export const ENDPOINTS = {
   AUTH: {
     LOGIN: "/api/auth/login",
     REGISTER: "/api/auth/register",
+    CHANGE_PASSWORD:(id: string) => `/api/auth/change-password/${id}`,
   },
 
   // Projects

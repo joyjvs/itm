@@ -41,7 +41,7 @@ const AccountComponent = () => {
                 Mis pedidos
                 <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/change-password")}>
                 Cambiar Contraseña
                 <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
               </DropdownMenuItem>

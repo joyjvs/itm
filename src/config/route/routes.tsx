@@ -123,7 +123,7 @@ function RoutesComponents() {
           }
         />
         <Route
-          path="/changePassword"
+          path="/change-password"
           element={
             <ProtectedRoute>
               <ChangePasswordPage />

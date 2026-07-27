@@ -3,34 +3,41 @@ import { changePasswordSchema } from "@/validators/auth.validators";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { type ChangePassowrdFormData} from "@/validators/auth.validators";
+import { type ChangePassowrdFormData } from "@/validators/auth.validators";
 import Alert from "../common/Alert";
 import Input from "../common/Input";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface ChangePasswordFormProps {
   onSuccess?: () => void;
 }
 
 const ChangePassowrdForm = ({ onSuccess }: ChangePasswordFormProps) => {
-  const { changePassword, isLoading, error, clearError } = useAuth();
-const [submitError, setSubmitError] = useState<string | null>(null);
+  const { changePassword, isLoading, error, clearError, user } = useAuth();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const {register, handleSubmit, formState:{errors}} = useForm<ChangePassowrdFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ChangePassowrdFormData>({
     resolver: zodResolver(changePasswordSchema),
   });
 
   const onSubmit = async (data: ChangePassowrdFormData) => {
-      try {
-        setSubmitError(null);
-        clearError();
-        await changePassword(data.password, data.confirmPassword);
-        onSuccess?.();
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        setSubmitError(message || "Error al iniciar sesión");
-      }
-    };
+    try {
+      setSubmitError(null);
+      clearError();
+      await changePassword(user!.id, data.password, data.confirmPassword);
+      onSuccess?.();
+      navigate("/");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setSubmitError(message || "Error al iniciar sesión");
+    }
+  };
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -64,4 +71,4 @@ const [submitError, setSubmitError] = useState<string | null>(null);
   );
 };
 
-export default ChangePassowrdForm
+export default ChangePassowrdForm;
