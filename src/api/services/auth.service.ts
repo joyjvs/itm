@@ -40,17 +40,8 @@ export const authService = {
     return response.data;
   },
 
-  updateProfile: async (data: Partial<User>): Promise<User> => {
-    // TODO: Reemplazar con llamada real a la API
-    // const response = await apiClient.put(ENDPOINTS.AUTH.PROFILE, data);
-    // return response.data;
-
-    // Simulación: actualizar el usuario mock
-    const userIndex = users.findIndex((u) => u.id === "1");
-    if (userIndex === -1) throw new Error("Usuario no encontrado");
-
-    const updatedUser = { ...users[userIndex], ...data };
-    users[userIndex] = updatedUser;
-    return updatedUser;
+  updateProfile: async (userId: string,data: Partial<User>): Promise<User> => {
+    const response = await axiosClient.patch(ENDPOINTS.AUTH.UPDATE_PROFILE(userId), data);
+    return response.data;
   },
 };
