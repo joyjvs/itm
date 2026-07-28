@@ -71,7 +71,14 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
       if (user && isEditing) {
         //llamar al editar usuario
         const updateUser = data as UserFormData;
-        await usersService.update(user.id, updateUser)
+        alert(updateUser.phone)
+        await usersService.update(user.id, {
+          address: updateUser.address,
+          firstName: updateUser.firstName,
+          email: updateUser.email,
+          lastName: updateUser.lastName,
+          phone: updateUser.phone,
+        })
       } else {
         const createUser = data as RegisterFormData;
         await authRegister(
