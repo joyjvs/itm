@@ -27,7 +27,7 @@ import OrderDetailPage from "@/pages/Orders/OrderDetailPage";
 import { CategoriesPage } from "@/pages/Admin/Categories";
 import { SubcategoriesPage } from "@/pages/Admin/Subcategories";
 import { ProductsPage } from "@/pages/Admin/Products";
-import { UsersPageAdmin } from "@/pages/Admin/Users";
+import { UsersPageAdmin } from "@/pages/Admin/User/Users";
 import { OrdersPageAdmin } from "@/pages/Admin/Orders";
 
 // Componente para proteger rutas
