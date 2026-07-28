@@ -13,7 +13,6 @@ import LoginPage from "@/pages/Auth/LoginPage";
 import ProfilePage from "@/pages/Auth/Profile";
 
 // Páginas Principales
-import UsersPage from "@/pages/Users/UsersPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import HomePage from "@/pages/Home/HomePage";
 
@@ -74,14 +73,14 @@ function RoutesComponents() {
         <Route path="/cart" element={<CartPage />} />
 
         {/* Rutas Protegidas */}
-        <Route
+        {/* <Route
           path="/users"
           element={
             <ProtectedRoute>
               <UsersPage />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="/change-password"
           element={

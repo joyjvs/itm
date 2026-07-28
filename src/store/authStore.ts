@@ -75,10 +75,11 @@ export const useAuthStore = create<AuthState>()(
             address,
             phone,
           });
-          setAuthToken(response.access_token);
+          console.log(response)
+          // setAuthToken(response.access_token);
           set({
-            user: response.user,
-            token: response.access_token,
+            //user: response.user,
+            //token: response.access_token,
             isLoading: false,
           });
         } catch (error: unknown) {

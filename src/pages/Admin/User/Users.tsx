@@ -11,10 +11,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useUsers } from "@/hooks/useUser";
 import { usersService } from "@/api/services/users.service";
+import { UserModal } from "@/components/user/UserModal";
+import type { User } from "@/types/user.types";
 
 export const UsersPageAdmin = () => {
   const { users, isLoading, error, fetchUsers } = useUsers();
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     void fetchUsers();
@@ -33,6 +37,11 @@ export const UsersPageAdmin = () => {
     }
   };
 
+  const handleCreate = () => {
+    setSelectedUser(null);
+    setModalOpen(true);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-4 p-6">
@@ -42,6 +51,7 @@ export const UsersPageAdmin = () => {
             <p className="text-sm text-muted-foreground">
               Gestión de usuarios del panel administrativo.
             </p>
+            <Button onClick={handleCreate}>+ Nuevo Usuario</Button>
           </div>
         </div>
 
@@ -98,6 +108,13 @@ export const UsersPageAdmin = () => {
             </TableBody>
           </Table>
         )}
+
+        <UserModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          user={selectedUser}
+          onSuccess={fetchUsers}
+        />
       </div>
     </MainLayout>
   );

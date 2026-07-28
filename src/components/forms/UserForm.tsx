@@ -34,7 +34,7 @@ const UserForm = ({ user, onSuccess }: UserFormProps) => {
     resolver: zodResolver(isEditing ? updateUserSchema : createUserSchema),
     defaultValues: user
       ? {
-          name: user.name,
+          name: user.firstName,
           lastName: user.lastName,
           email: user.email,
         }
@@ -44,7 +44,7 @@ const UserForm = ({ user, onSuccess }: UserFormProps) => {
   useEffect(() => {
     if (user) {
       reset({
-        name: user.name,
+        name: user.firstName,
         lastName: user.lastName,
         email: user.email,
       });

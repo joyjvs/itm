@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -8,33 +8,84 @@ import {
 } from "../../validators/auth.validators";
 import { useAuth } from "../../hooks/useAuth";
 import InputComponent from "../common/InputComponent";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import Alert from "../common/Alert";
+import { User } from "@/types/user.types";
 
 interface RegisterFormProps {
+  user?: User | null;
   onSuccess?: () => void;
 }
 
-const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
+const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
   const navigate = useNavigate();
-  const { register: authRegister, isLoading, error, clearError } = useAuth();
+  const isEditing = !!user;
+  const {
+    register: authRegister,
+    isLoading,
+    error,
+    clearError,
+    isAuthenticated,
+  } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: user
+      ? {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+          address: user.address,
+        }
+      : undefined,
   });
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+      });
+    }
+  }, [reset, user]);
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setSubmitError(null);
       clearError();
-      await authRegister(data.email, data.password, data.firstName, data.lastName, data.address, data.phone);
+      if (user && isEditing) {
+        //llamar al editar usuario
+      } else if (isAuthenticated) {
+        await authRegister(
+          data.email,
+          data.password,
+          data.firstName,
+          data.lastName,
+          data.address,
+          data.phone,
+        );
+      } else {
+        await authRegister(
+          data.email,
+          data.password,
+          data.firstName,
+          data.lastName,
+          data.address,
+          data.phone,
+        );
+        navigate("/login");
+      }
       onSuccess?.();
-      navigate("/login");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setSubmitError(message || "Error al registrarse");
@@ -80,15 +131,6 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
       />
 
       <InputComponent
-        htmlForm="input-field-password"
-        label="Contraseña"
-        placeholder="**********"
-        type="password"
-        {...register("password")}
-        error={errors.password?.message}
-      />
-
-      <InputComponent
         htmlForm="input-field-address"
         label="Dirección"
         placeholder="Av. Principal 123, Ciudad"
@@ -104,6 +146,15 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         type="text"
         {...register("phone")}
         error={errors.phone?.message}
+      />
+
+      <InputComponent
+        htmlForm="input-field-password"
+        label="Contraseña"
+        placeholder="**********"
+        type="password"
+        {...register("password")}
+        error={errors.password?.message}
       />
 
       <InputComponent
