@@ -59,7 +59,7 @@ const UserForm = ({ user, onSuccess }: UserFormProps) => {
       if (isEditing && user) {
         const updateData = data as UpdateUserFormData;
         await usersService.update(user.id, {
-          first: updateData.name,
+          firstName: updateData.name,
           lastName: updateData.lastName,
           email: updateData.email,
         });

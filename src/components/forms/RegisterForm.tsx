@@ -25,13 +25,9 @@ type UserFormData = RegisterFormData | UpdateUserFormData;
 const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
   const navigate = useNavigate();
   const isEditing = !!user;
-  const {
-    register: authRegister,
-    isLoading,
-    error,
-    clearError,
-  } = useAuth();
+  const { register: authRegister, isLoading, error, clearError } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
 
   const {
     register,
@@ -71,14 +67,13 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
       if (user && isEditing) {
         //llamar al editar usuario
         const updateUser = data as UserFormData;
-        alert(updateUser.phone)
         await usersService.update(user.id, {
           address: updateUser.address,
           firstName: updateUser.firstName,
           email: updateUser.email,
           lastName: updateUser.lastName,
           phone: updateUser.phone,
-        })
+        });
       } else {
         const createUser = data as RegisterFormData;
         await authRegister(
@@ -89,7 +84,9 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
           createUser.address,
           createUser.phone,
         );
-        navigate("/login");
+        if (!isAuthenticated) {
+          navigate("/login");
+        }
       }
       onSuccess?.();
     } catch (err: unknown) {
