@@ -13,11 +13,10 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  fullName: string | null;
-  isActive: boolean;
-  roles: Role[];
-  phone: string;
-  address: string;
+  isActive?: boolean;
+  roles?: Role[];
+  phone?: string;
+  address?: string;
 }
 
 export interface PaginationResponse {

@@ -5,17 +5,22 @@ import { useNavigate } from "react-router-dom";
 import {
   registerSchema,
   type RegisterFormData,
+  updateUserSchema,
+  type UpdateUserFormData,
 } from "../../validators/auth.validators";
 import { useAuth } from "../../hooks/useAuth";
 import InputComponent from "../common/InputComponent";
 import { Button } from "@/components/ui/button";
 import Alert from "../common/Alert";
 import { User } from "@/types/user.types";
+import { usersService } from "@/api/services/users.service";
 
 interface RegisterFormProps {
   user?: User | null;
   onSuccess?: () => void;
 }
+
+type UserFormData = RegisterFormData | UpdateUserFormData;
 
 const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
   const navigate = useNavigate();
@@ -25,7 +30,6 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
     isLoading,
     error,
     clearError,
-    isAuthenticated,
   } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -34,8 +38,8 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<UserFormData>({
+    resolver: zodResolver(isEditing ? updateUserSchema : registerSchema),
     defaultValues: user
       ? {
           firstName: user.firstName,
@@ -59,29 +63,24 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
     }
   }, [reset, user]);
 
-  const onSubmit = async (data: RegisterFormData) => {
+  const onSubmit = async (data: UserFormData) => {
+    console.log("Editar Usuario");
     try {
       setSubmitError(null);
       clearError();
       if (user && isEditing) {
         //llamar al editar usuario
-      } else if (isAuthenticated) {
-        await authRegister(
-          data.email,
-          data.password,
-          data.firstName,
-          data.lastName,
-          data.address,
-          data.phone,
-        );
+        const updateUser = data as UserFormData;
+        await usersService.update(user.id, updateUser)
       } else {
+        const createUser = data as RegisterFormData;
         await authRegister(
-          data.email,
-          data.password,
-          data.firstName,
-          data.lastName,
-          data.address,
-          data.phone,
+          createUser.email,
+          createUser.password,
+          createUser.firstName,
+          createUser.lastName,
+          createUser.address,
+          createUser.phone,
         );
         navigate("/login");
       }
@@ -148,23 +147,31 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
         error={errors.phone?.message}
       />
 
-      <InputComponent
-        htmlForm="input-field-password"
-        label="Contraseña"
-        placeholder="**********"
-        type="password"
-        {...register("password")}
-        error={errors.password?.message}
-      />
+      {!isEditing && (
+        <>
+          <InputComponent
+            htmlForm="input-field-password"
+            label="Contraseña"
+            placeholder="**********"
+            type="password"
+            {...register("password")}
+            error={"password" in errors ? errors.password?.message : undefined}
+          />
 
-      <InputComponent
-        htmlForm="input-field-confirmPassword"
-        label="Confirmar Contraseña"
-        placeholder="**********"
-        type="password"
-        {...register("confirmPassword")}
-        error={errors.confirmPassword?.message}
-      />
+          <InputComponent
+            htmlForm="input-field-confirmPassword"
+            label="Confirmar Contraseña"
+            placeholder="**********"
+            type="password"
+            {...register("confirmPassword")}
+            error={
+              "confirmPassword" in errors
+                ? errors.confirmPassword?.message
+                : undefined
+            }
+          />
+        </>
+      )}
 
       <Button type="submit" disabled={isLoading} className="w-full bg-blue-950">
         {isLoading ? "Registrando..." : "Registrarse"}

@@ -50,6 +50,29 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
+
+export const updateUserSchema = z
+  .object({
+    email: z
+      .string({ error: "El email es requerido" })
+      .email("El email debe ser válido"),
+    firstName: z
+      .string({ error: "El nombre es requerido" })
+      .min(2, "El nombre debe tener al menos 2 caracteres"),
+    lastName: z
+      .string({ error: "El apellido es requerido" })
+      .min(2, "El apellido debe tener al menos 2 caracteres"),
+    address: z
+      .string({ error: "La dirección es requerida" })
+      .min(10, "La dirección debe tener al menos 10 caracteres"),
+    phone: z
+      .string({ error: "El teléfono es requerido" })
+      .min(8, "El teléfono debe tener al menos 8 caracteres")
+      .max(15, "El teléfono no puede exceder 15 caracteres"),
+  })
+
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type ChangePassowrdFormData = z.infer<typeof changePasswordSchema>;
+export type UpdateUserFormData = z.infer<typeof updateUserSchema>;

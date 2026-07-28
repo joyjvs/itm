@@ -42,6 +42,11 @@ export const UsersPageAdmin = () => {
     setModalOpen(true);
   };
 
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setModalOpen(true);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-4 p-6">
@@ -88,7 +93,7 @@ export const UsersPageAdmin = () => {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{roleName}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" className="mr-2">
+                      <Button variant="outline" size="sm" className="mr-2" onClick={() => handleEdit(user)}>
                         Editar
                       </Button>
                       <Button
