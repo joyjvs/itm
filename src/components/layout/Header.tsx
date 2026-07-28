@@ -6,6 +6,7 @@ import AccountComponent from "../features/Account/AccountComponent";
 import { Link } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
 import { Badge } from "@/components/ui/badge";
+import { AdminMenuComponent } from "../features/Admin/AdminMenuComponent";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ const Header = () => {
           >
             Sobre nostros
           </Button>
+          <AdminMenuComponent/>
         </div>
 
         <div className="flex items-center gap-4">

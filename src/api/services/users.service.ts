@@ -5,6 +5,8 @@ import type {
   UpdateUserPayload,
   User,
 } from "../../types/auth.types";
+import { Pagination } from "@/types/pagination";
+import { UsersResponse } from "@/types/user.types";
 
 const unwrapData = <T>(responseData: unknown): T => {
   if (
@@ -19,9 +21,9 @@ const unwrapData = <T>(responseData: unknown): T => {
 };
 
 export const usersService = {
-  async getAll(): Promise<User[]> {
-    const response = await axiosClient.get(ENDPOINTS.USERS.LIST);
-    return unwrapData<User[]>(response.data);
+  async getAll(pagination: Pagination): Promise<UsersResponse> {
+    const response = await axiosClient.get(ENDPOINTS.USERS.LIST(pagination));
+    return unwrapData<UsersResponse>(response);
   },
 
   async getById(id: string): Promise<User> {

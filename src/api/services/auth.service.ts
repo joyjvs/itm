@@ -7,19 +7,6 @@ import type {
   User,
 } from "../../types/auth.types";
 
-const users: User[] = [
-  {
-    id: "1",
-    firstName: "Juan",
-    email: "juan@example.com",
-    phone: "+1 234 567 890",
-    address: "Av. Principal 123, Ciudad",
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-15",
-    lastName: "Pérez",
-  },
-];
-
 export const authService = {
   async login(payload: LoginPayload): Promise<AuthResponse> {
     const response = await axiosClient.post(ENDPOINTS.AUTH.LOGIN, payload);

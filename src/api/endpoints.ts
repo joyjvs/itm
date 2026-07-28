@@ -1,3 +1,5 @@
+import { Pagination } from "@/types/pagination";
+
 // URLs base y endpoints de la API
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -38,7 +40,8 @@ export const ENDPOINTS = {
 
   // Users
   USERS: {
-    LIST: "/api/users",
+    LIST: (pagination: Pagination) =>
+      `/api/users?limit=${pagination.limit}&page=${pagination.page}`,
     DETAIL: (id: string) => `/api/users/${id}`,
     CREATE: "/api/users",
     UPDATE: (id: string) => `/api/users/${id}`,

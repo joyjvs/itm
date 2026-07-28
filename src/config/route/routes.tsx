@@ -24,6 +24,11 @@ import CartPage from "@/pages/Cart/CartPage";
 import ChangePasswordPage from "@/pages/Auth/ChangePasswordPage";
 import OrdersPage from "@/pages/Orders/OrdersPage";
 import OrderDetailPage from "@/pages/Orders/OrderDetailPage";
+import { CategoriesPage } from "@/pages/Admin/Categories";
+import { SubcategoriesPage } from "@/pages/Admin/Subcategories";
+import { ProductsPage } from "@/pages/Admin/Products";
+import { UsersPageAdmin } from "@/pages/Admin/Users";
+import { OrdersPageAdmin } from "@/pages/Admin/Orders";
 
 // Componente para proteger rutas
 interface ProtectedRouteProps {
@@ -41,19 +46,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 };
 
 // Componente para rutas públicas (redirige si está autenticado)
-interface PublicRouteProps {
-  children: React.ReactNode;
-}
+// interface PublicRouteProps {
+//   children: React.ReactNode;
+// }
 
-const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+// const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
+//   const { isAuthenticated } = useAuth();
 
-  if (isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
+//   if (isAuthenticated) {
+//     return <Navigate to="/" replace />;
+//   }
 
-  return <>{children}</>;
-};
+//   return <>{children}</>;
+// };
 
 function RoutesComponents() {
   return (
@@ -61,57 +66,12 @@ function RoutesComponents() {
       <Routes>
         {/* Rutas Públicas */}
         <Route path="/" element={<HomePage />} />
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <PublicRoute>
-              <RegisterPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/products"
-          element={
-            <PublicRoute>
-              <AllProducts />
-            </PublicRoute>
-          }
-        />
-
-        <Route
-          path="/product/:id"
-          element={
-            <PublicRoute>
-              <ProductDetails />
-            </PublicRoute>
-          }
-        />
-
-        <Route
-          path="/about"
-          element={
-            <PublicRoute>
-              <About />
-            </PublicRoute>
-          }
-        />
-
-        <Route
-          path="/cart"
-          element={
-            <PublicRoute>
-              <CartPage />
-            </PublicRoute>
-          }
-        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/products" element={<AllProducts />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/cart" element={<CartPage />} />
 
         {/* Rutas Protegidas */}
         <Route
@@ -154,6 +114,52 @@ function RoutesComponents() {
           element={
             <ProtectedRoute>
               <OrderDetailPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/*Rutas para usuarios administradores de la tienda  */}
+        <Route
+          path="/categories-admin"
+          element={
+            <ProtectedRoute>
+              <CategoriesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/subcategories-admin"
+          element={
+            <ProtectedRoute>
+              <SubcategoriesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/products-admin"
+          element={
+            <ProtectedRoute>
+              <ProductsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/orders-admin"
+          element={
+            <ProtectedRoute>
+              <OrdersPageAdmin />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/users-admin"
+          element={
+            <ProtectedRoute>
+              <UsersPageAdmin />
             </ProtectedRoute>
           }
         />

@@ -1,0 +1,104 @@
+import MainLayout from "@/components/layout/MainLayout";
+import { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { useUsers } from "@/hooks/useUser";
+import { usersService } from "@/api/services/users.service";
+
+export const UsersPageAdmin = () => {
+  const { users, isLoading, error, fetchUsers } = useUsers();
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetchUsers();
+  }, [fetchUsers]);
+
+  const handleDeleteUser = async (userId: string) => {
+    setDeletingUserId(userId);
+
+    try {
+      await usersService.delete(userId);
+      await fetchUsers();
+    } catch (err) {
+      console.error("No se pudo eliminar el usuario", err);
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
+  return (
+    <MainLayout>
+      <div className="space-y-4 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold">Usuarios</h1>
+            <p className="text-sm text-muted-foreground">
+              Gestión de usuarios del panel administrativo.
+            </p>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="rounded-md border p-4 text-sm text-muted-foreground">
+            Cargando usuarios...
+          </div>
+        ) : error ? (
+          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {error}
+          </div>
+        ) : users.length === 0 ? (
+          <div className="rounded-md border p-4 text-sm text-muted-foreground">
+            No hay usuarios registrados.
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Rol</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => {
+                const roleName =
+                  user.roles?.[0]?.name ?? user.role ?? "Sin rol";
+
+                return (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.firstName}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{roleName}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" className="mr-2">
+                        Editar
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => void handleDeleteUser(user.id)}
+                        disabled={deletingUserId === user.id}
+                      >
+                        {deletingUserId === user.id
+                          ? "Eliminando..."
+                          : "Eliminar"}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </div>
+    </MainLayout>
+  );
+};

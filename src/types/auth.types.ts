@@ -1,3 +1,11 @@
+export interface Role {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  description: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -8,6 +16,8 @@ export interface User {
   isActive?: boolean;
   address?: string;
   phone?: string;
+  roles?: Role[];
+  role?: string;
 }
 
 export interface AuthResponse {

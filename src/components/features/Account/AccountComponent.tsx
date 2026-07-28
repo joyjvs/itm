@@ -16,13 +16,11 @@ const AccountComponent = () => {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
 
-  console.log(user)
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <div className="flex items-center gap-2 px-3 py-2 rounded-md">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer">
             <User />
             <span className="text-sm font-medium">{user?.firstName}</span>
           </div>
