@@ -3,6 +3,10 @@ export interface Category {
   name: string;
   description?: string;
   parentId?: string | null;
+  parent?: {
+    id: string;
+    name?: string;
+  } | null;
   children?: Category[];
 }
 

@@ -36,12 +36,12 @@ export const CategoryForm = ({ category, onSuccess }: CategoryFormProps) => {
     });
 
   useEffect(() => {
-    if (category) {
-      reset({
-        ...category,
-      });
-    }
-  }, [reset, category]);
+    reset({
+      name: category?.name ?? "",
+      description: category?.description ?? "",
+      parentId: category?.parentId ?? category?.parent?.id ?? null,
+    });
+  }, [category, reset]);
 
   const onSubmit = async (data: CategoryFormValues) => {
     try {
@@ -78,13 +78,13 @@ export const CategoryForm = ({ category, onSuccess }: CategoryFormProps) => {
         control={control}
         name="parentId"
         render={({ field }) => (
-          <div className="space-y-2">
-            <CategoryTreeSelect
-              value={field.value ?? null}
-              onChange={(value) => field.onChange(value ?? null)}
-              placeholder="Sin categoría padre"
-            />
-          </div>
+          <CategoryTreeSelect
+            key={field.value ?? "empty"}
+            value={field.value ?? null}
+            onChange={(value) => field.onChange(value ?? null)}
+            onBlur={field.onBlur}
+            placeholder="Sin categoría padre"
+          />
         )}
       />
       <Button type="submit" disabled={isLoading} className="w-full">

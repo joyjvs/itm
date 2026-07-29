@@ -15,6 +15,7 @@ interface CategoryTreeSelectProps {
   onChange: (value: string | null) => void;
   className?: string;
   placeholder?: string;
+  onBlur?: () => void;
 }
 
 export const CategoryTreeSelect = ({
@@ -22,24 +23,34 @@ export const CategoryTreeSelect = ({
   onChange,
   className,
   placeholder = "Seleccionar categoría",
+  onBlur,
 }: CategoryTreeSelectProps) => {
   const { tree, fetchTree, isLoading } = useCategories();
 
   useEffect(() => {
     fetchTree();
-  }, []);
+  }, [fetchTree]);
 
   const options = flattenCategoryTree(tree).map((cat) => ({
     label: "  ".repeat(cat.level) + cat.name,
     value: cat.id,
   }));
 
+   const selectedLabel = value
+     ? options.find((opt) => opt.value === value)?.label
+     : undefined;
+
   return (
     <Field>
       <FieldLabel>Categoría padre (opcional)</FieldLabel>
-      <Select value={value ?? ""} onValueChange={(next) => onChange(next)}>
-        <SelectTrigger className={className}>
-          <SelectValue placeholder={isLoading ? "Cargando..." : placeholder} />
+      <Select
+        value={value ?? undefined}
+        onValueChange={(next) => onChange(next ?? null)}
+      >
+        <SelectTrigger className={className} onBlur={onBlur}>
+          <SelectValue placeholder={isLoading ? "Cargando..." : placeholder} >
+            { selectedLabel}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {options.map((opt) => (

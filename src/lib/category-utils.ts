@@ -4,20 +4,39 @@ export const buildCategoryTree = (categories: Category[]): Category[] => {
   const map = new Map<string, Category>();
   const roots: Category[] = [];
 
-  categories.forEach((cat) => {
-    map.set(cat.id, {
+  const nodes = categories.map((cat) => {
+    const node: Category = {
       ...cat,
-      children: cat.children ?? [],
-    });
+      children: [],
+      parent: cat.parent
+        ? {
+            id: cat.parent.id,
+            name: cat.parent.name,
+          }
+        : null,
+    };
+    console.log("node", node);
+
+    if (cat.parentId && !node.parent) {
+      node.parent = { id: cat.parentId };
+    }
+
+    map.set(node.id, node);
+    return node;
   });
 
-  categories.forEach((cat) => {
-    const node = map.get(cat.id);
-    if (!node) return;
+  nodes.forEach((node) => {
+    if (node.parentId) {
+      const parent = map.get(node.parentId);
 
-    if (cat.parentId && map.has(cat.parentId)) {
-      const parent = map.get(cat.parentId);
       if (parent) {
+        console.log("parent", parent);
+        const parentRef = parent.parent
+          ? { id: parent.id, name: parent.name }
+          : { id: parent.id };
+
+        node.parent = node.parent ?? parentRef;
+
         const alreadyLinked = parent.children?.some(
           (child) => child.id === node.id,
         );
@@ -25,6 +44,8 @@ export const buildCategoryTree = (categories: Category[]): Category[] => {
         if (!alreadyLinked) {
           parent.children = [...(parent.children ?? []), node];
         }
+      } else {
+        roots.push(node);
       }
     } else {
       roots.push(node);

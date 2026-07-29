@@ -12,6 +12,7 @@ const normalizeCategory = (item: any): Category => ({
   name: item.name,
   description: item.description,
   parentId: item.parent?.id ?? null,
+  parent: item.parent ? { id: item.parent.id, name: item.parent.name } : null,
   children: (item.children ?? []).map(normalizeCategory),
 });
 

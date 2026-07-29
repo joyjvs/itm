@@ -31,7 +31,6 @@ export const CategoryList = ({
       <TableHeader>
         <TableRow>
           <TableHead>Nombre</TableHead>
-          <TableHead>Slug</TableHead>
           <TableHead>Categoría padre</TableHead>
           <TableHead>Subcategorías</TableHead>
           <TableHead className="text-right">Acciones</TableHead>
@@ -41,7 +40,6 @@ export const CategoryList = ({
         {categories.map((cat) => (
           <TableRow key={cat.id}>
             <TableCell>{cat.name}</TableCell>
-            <TableCell>{cat.slug}</TableCell>
             <TableCell>{cat.parentId ? "Sí" : "Raíz"}</TableCell>
             <TableCell>
               <Badge variant="secondary">{cat.children?.length || 0}</Badge>
