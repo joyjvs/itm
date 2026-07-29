@@ -60,7 +60,6 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
   }, [reset, user]);
 
   const onSubmit = async (data: UserFormData) => {
-    console.log("Editar Usuario");
     try {
       setSubmitError(null);
       clearError();

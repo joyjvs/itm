@@ -1,16 +1,16 @@
-// src/types/product.types.ts
 import { PaginationMeta } from "./pagination.types";
 
-// Interfaz de un Producto
 export interface Product {
   id: string;
   name: string;
+  slug: string;
   description: string;
   price: number;
-  category: string;
-  image: string;
+  categoryId: string; // obligatorio, referencia a Category
+  images: string[]; // URLs de imágenes subidas
   stock: number;
-  year?: number; // Dato adicional del ejemplo anterior
+  sku?: string;
+  status: "active" | "inactive";
   createdAt: string;
   updatedAt: string;
 }
@@ -20,6 +20,7 @@ export type CreateProductPayload = Omit<
   Product,
   "id" | "createdAt" | "updatedAt"
 >;
+export type UpdateProductPayload = Partial<CreateProductPayload>;
 
 // Interfaz para los parámetros de filtrado
 export interface ProductFilters {

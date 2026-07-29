@@ -2,9 +2,11 @@
 import { create } from "zustand";
 import { productsService } from "@/api/services/product.service";
 import type {
+  CreateProductPayload,
   Product,
   ProductFilters,
   ProductsResponse,
+  UpdateProductPayload,
 } from "../types/product.types";
 import type { PaginationMeta } from "../types/pagination.types";
 
@@ -20,6 +22,9 @@ interface ProductState {
   // Acciones
   fetchProducts: (page?: number, limit?: number) => Promise<void>;
   fetchProductById: (id: string) => Promise<Product>;
+  createProduct: (payload: CreateProductPayload) => Promise<void>;
+  updateProduct: (id: string, payload: UpdateProductPayload) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   setFilters: (filters: Partial<ProductFilters>) => void;
   clearFilters: () => void;
   setPage: (page: number) => void;
@@ -85,6 +90,54 @@ export const useProductStore = create<ProductState>((set, get) => ({
     } catch (error) {
       set({
         error: (error as Error)?.message || "Error al cargar el producto",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  createProduct: async (payload) => {
+    set({ isLoading: true, error: null });
+    try {
+      await productsService.create(payload);
+      await get().fetchProducts(1, get().pagination.itemsPerPage);
+    } catch (error) {
+      set({
+        error: (error as Error)?.message || "Error al crear producto",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  updateProduct: async (id, payload) => {
+    set({ isLoading: true, error: null });
+    try {
+      await productsService.update(id, payload);
+      await get().fetchProducts(
+        get().pagination.currentPage,
+        get().pagination.itemsPerPage,
+      );
+    } catch (error) {
+      set({
+        error: (error as Error)?.message || "Error al actualizar producto",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  deleteProduct: async (id) => {
+    set({ isLoading: true, error: null });
+    try {
+      await productsService.delete(id);
+      await get().fetchProducts(
+        get().pagination.currentPage,
+        get().pagination.itemsPerPage,
+      );
+    } catch (error) {
+      set({
+        error: (error as Error)?.message || "Error al eliminar producto",
         isLoading: false,
       });
       throw error;

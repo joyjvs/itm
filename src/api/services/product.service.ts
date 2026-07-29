@@ -2,9 +2,11 @@
 import apiClient from "../client";
 import { ENDPOINTS } from "../endpoints";
 import type {
+  CreateProductPayload,
   Product,
   ProductFilters,
   ProductsResponse,
+  UpdateProductPayload,
 } from "../../types/product.types";
 
 // --- Datos Mock (temporales) ---
@@ -95,7 +97,43 @@ export const productsService = {
     };
   },
 
-  // Puedes agregar otros métodos como getById, create, update, delete
+  create: async (payload: CreateProductPayload): Promise<Product> => {
+    const product: Product = {
+      id: crypto.randomUUID?.() || `${Date.now()}`,
+      ...payload,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    mockProducts.unshift(product);
+    return product;
+  },
+
+  update: async (
+    id: string,
+    payload: UpdateProductPayload,
+  ): Promise<Product> => {
+    const index = mockProducts.findIndex((product) => product.id === id);
+    if (index === -1) throw new Error("Producto no encontrado");
+
+    const updatedProduct: Product = {
+      ...mockProducts[index],
+      ...payload,
+      id,
+      updatedAt: new Date().toISOString(),
+    };
+
+    mockProducts[index] = updatedProduct;
+    return updatedProduct;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const index = mockProducts.findIndex((product) => product.id === id);
+    if (index === -1) throw new Error("Producto no encontrado");
+
+    mockProducts.splice(index, 1);
+  },
+
   getById: async (id: string): Promise<Product> => {
     // TODO: Llamada real a la API
     // const response = await apiClient.get(ENDPOINTS.PRODUCTS.DETAIL(id));
@@ -103,5 +141,14 @@ export const productsService = {
     const product = mockProducts.find((p) => p.id === id);
     if (!product) throw new Error("Producto no encontrado");
     return product;
+  },
+
+  uploadImage: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const response = await apiClient.post(ENDPOINTS.UPLOAD.IMAGE, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data.url; // devuelve la URL de la imagen subida
   },
 };

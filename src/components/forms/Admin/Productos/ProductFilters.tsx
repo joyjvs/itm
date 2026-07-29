@@ -15,7 +15,10 @@ import {
 } from "@/components/ui/select";
 import { Field, FieldLabel } from "@/components/ui/field";
 
-import InputComponent from "../common/InputComponent";
+import InputComponent from "@/components/common/InputComponent";
+import { useCategories } from "@/hooks/useCategories";
+import { useEffect } from "react";
+import { flattenCategoryTree } from "@/lib/category-utils";
 
 // Esquema de validación para el formulario de filtros
 const filterSchema = z.object({
@@ -39,6 +42,7 @@ const categories = [
 
 export const ProductFilters = () => {
   const { filters, setFilters, clearFilters } = useProducts();
+  const { tree, fetchTree } = useCategories();
 
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(filterSchema),
@@ -51,6 +55,15 @@ export const ProductFilters = () => {
       sortOrder: filters.sortOrder || "desc",
     },
   });
+
+  useEffect(() => {
+    void fetchTree();
+  }, [fetchTree]);
+
+  const categoryOptions = flattenCategoryTree(tree).map((cat) => ({
+    label: cat.name,
+    value: cat.id,
+  }));
 
   const onSubmit = async (values: FilterFormValues) => {
     // Convertir valores vacíos a undefined para no enviarlos
@@ -90,7 +103,7 @@ export const ProductFilters = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                {categories.map((item) => (
+                {categoryOptions.map((item) => (
                   <SelectItem key={item.value} value={item.value}>
                     {item.label}
                   </SelectItem>

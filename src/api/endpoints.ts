@@ -47,4 +47,23 @@ export const ENDPOINTS = {
     UPDATE: (id: string) => `/api/users/${id}`,
     DELETE: (id: string) => `/api/users/${id}`,
   },
+
+  CATEGORIES: {
+    LIST: "/api/categories",
+    TREE: "/api/categories",
+    DETAIL: (id: string) => `/api/categories/${id}`,
+    CREATE: "/api/categories",
+    UPDATE: (id: string) => `/api/categories/${id}`,
+    DELETE: (id: string) => `/api/categories/${id}`,
+  },
+  PRODUCTS: {
+    LIST: "/api/products",
+    DETAIL: (id: string) => `/api/products/${id}`,
+    CREATE: "/api/products",
+    UPDATE: (id: string) => `/api/products/${id}`,
+    DELETE: (id: string) => `/api/products/${id}`,
+  },
+  UPLOAD: {
+    IMAGE: "/api/upload/image",
+  },
 };

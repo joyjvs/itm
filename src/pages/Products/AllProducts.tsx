@@ -1,7 +1,7 @@
 import MainLayout from "@/components/layout/MainLayout";
 import { products } from "@/components/features/Products-Category";
 import { ProductCard } from "@/components/features/Product/ProductCard";
-import { ProductFilters } from "@/components/products/ProductFilters";
+import { ProductFilters } from "@/components/forms/Admin/Productos/ProductFilters";
 
 const AllProducts = () => {
   return (

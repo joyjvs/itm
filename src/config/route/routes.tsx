@@ -23,11 +23,11 @@ import CartPage from "@/pages/Cart/CartPage";
 import ChangePasswordPage from "@/pages/Auth/ChangePasswordPage";
 import OrdersPage from "@/pages/Orders/OrdersPage";
 import OrderDetailPage from "@/pages/Orders/OrderDetailPage";
-import { CategoriesPage } from "@/pages/Admin/Categories";
 import { SubcategoriesPage } from "@/pages/Admin/Subcategories";
-import { ProductsPage } from "@/pages/Admin/Products";
+import { ProductsPage } from "@/pages/Admin/Product/Products";
 import { UsersPageAdmin } from "@/pages/Admin/User/Users";
 import { OrdersPageAdmin } from "@/pages/Admin/Orders";
+import CategoriesPage from "@/pages/Admin/Category/Categories";
 
 // Componente para proteger rutas
 interface ProtectedRouteProps {
