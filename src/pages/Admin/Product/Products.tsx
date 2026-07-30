@@ -5,14 +5,19 @@ import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/useProducts";
 import MainLayout from "@/components/layout/MainLayout";
 import { Product } from "@/types/product.types";
+import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
 
 export const ProductsPage = () => {
   const { products, fetchProducts, deleteProduct, isLoading } = useProducts();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productIdToDelete, setProductIdToDelete] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
-    fetchProducts();
+    void fetchProducts();
   }, [fetchProducts]);
 
   const handleEdit = (product: Product) => {
@@ -20,10 +25,18 @@ export const ProductsPage = () => {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Eliminar producto?")) {
-      await deleteProduct(id);
-    }
+  const handleDeleteRequest = (id: string) => {
+    setProductIdToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!productIdToDelete) return;
+
+    await deleteProduct(productIdToDelete);
+    setDeleteDialogOpen(false);
+    setProductIdToDelete(null);
+    await fetchProducts();
   };
 
   return (
@@ -45,7 +58,7 @@ export const ProductsPage = () => {
           products={products}
           isLoading={isLoading}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={handleDeleteRequest}
         />
 
         <ProductModal
@@ -54,8 +67,17 @@ export const ProductsPage = () => {
           product={selectedProduct}
           onSuccess={() => {
             setModalOpen(false);
-            fetchProducts();
+            void fetchProducts();
           }}
+        />
+
+        <ConfirmAlertDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="Eliminar producto"
+          description="Esta acción eliminará el producto seleccionado. ¿Deseas continuar?"
+          confirmText="Eliminar producto"
+          onConfirm={handleDeleteConfirm}
         />
       </div>
     </MainLayout>

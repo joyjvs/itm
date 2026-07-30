@@ -6,15 +6,21 @@ import { useCategories } from "@/hooks/useCategories";
 import MainLayout from "@/components/layout/MainLayout";
 import { Category } from "@/types/category.types";
 import { flattenCategoryTree } from "@/lib/category-utils";
+import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
 
 const CategoriesPage = () => {
-  const { categories, tree, fetchTree, deleteCategory, isLoading } =
-    useCategories();
+  const { tree, fetchTree, deleteCategory, isLoading } = useCategories();
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category| null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [categoryIdToDelete, setCategoryIdToDelete] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
-    fetchTree();
+    void fetchTree();
   }, []);
 
   const handleEdit = (category: Category) => {
@@ -22,10 +28,18 @@ const CategoriesPage = () => {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Eliminar categoría?")) {
-      await deleteCategory(id);
-    }
+  const handleDeleteRequest = (id: string) => {
+    setCategoryIdToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!categoryIdToDelete) return;
+
+    await deleteCategory(categoryIdToDelete);
+    setDeleteDialogOpen(false);
+    setCategoryIdToDelete(null);
+    await fetchTree();
   };
 
   const flatCategories = flattenCategoryTree(tree);
@@ -48,7 +62,7 @@ const CategoriesPage = () => {
           categories={flatCategories}
           isLoading={isLoading}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={handleDeleteRequest}
         />
         <CategoryModal
           open={modalOpen}
@@ -56,8 +70,16 @@ const CategoriesPage = () => {
           category={selectedCategory}
           onSuccess={() => {
             setModalOpen(false);
-            fetchTree();
+            void fetchTree();
           }}
+        />
+        <ConfirmAlertDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="Eliminar categoría"
+          description="Esta acción eliminará la categoría seleccionada. ¿Deseas continuar?"
+          confirmText="Eliminar categoría"
+          onConfirm={handleDeleteConfirm}
         />
       </div>
     </MainLayout>

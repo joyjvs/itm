@@ -1,7 +1,14 @@
-import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { useState } from "react";
-import cn from "../../utils/cn";
-import Button from "./Button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ConfirmAlertDialogProps {
   open: boolean;
@@ -26,47 +33,41 @@ const ConfirmAlertDialog = ({
 
   const handleConfirm = async () => {
     setIsConfirming(true);
+
     try {
       await onConfirm();
       onOpenChange(false);
+    } catch (error) {
+      console.error(error);
     } finally {
       setIsConfirming(false);
     }
   };
 
   return (
-    <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
-      <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" />
-        <AlertDialog.Content
-          className={cn(
-            "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-input bg-background p-6 shadow-lg",
-          )}
-        >
-          <AlertDialog.Title className="text-lg font-semibold">
-            {title}
-          </AlertDialog.Title>
-          <AlertDialog.Description className="text-sm text-muted-foreground">
-            {description}
-          </AlertDialog.Description>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent size="sm" className="max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
 
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <AlertDialog.Cancel asChild>
-              <Button variant="outline" disabled={isConfirming}>
-                {cancelText}
-              </Button>
-            </AlertDialog.Cancel>
-            <Button
-              variant="destructive"
-              isLoading={isConfirming}
-              onClick={handleConfirm}
-            >
-              {confirmText}
-            </Button>
-          </div>
-        </AlertDialog.Content>
-      </AlertDialog.Portal>
-    </AlertDialog.Root>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isConfirming}>
+            {cancelText}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            disabled={isConfirming}
+            onClick={() => {
+              void handleConfirm();
+            }}
+          >
+            {confirmText}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 

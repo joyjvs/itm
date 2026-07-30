@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { useOrders } from "@/hooks/useOrders";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
+import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -28,33 +28,30 @@ const statusLabels = {
 const OrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const {
-    selectedOrder,
-    isLoading,
-    error,
-    fetchOrderById,
-    cancelOrder,
-    clearError,
-  } = useOrders();
+  const { selectedOrder, isLoading, error, fetchOrderById, cancelOrder } =
+    useOrders();
   const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
-      fetchOrderById(id);
+      void fetchOrderById(id);
     }
-  }, [id]);
+  }, [id, fetchOrderById]);
+
+  const handleCancelRequest = () => {
+    setCancelDialogOpen(true);
+  };
 
   const handleCancel = async () => {
     if (!selectedOrder) return;
-    if (!confirm("¿Estás seguro de que deseas cancelar este pedido?")) return;
+
     setIsCancelling(true);
     try {
       await cancelOrder(selectedOrder.id);
-      // Refrescar detalle
       await fetchOrderById(selectedOrder.id);
+      setCancelDialogOpen(false);
     } catch (error) {
-      // error manejado en el store
       console.log(error);
     } finally {
       setIsCancelling(false);
@@ -161,12 +158,11 @@ const OrderDetailPage = () => {
               </div>
             </div>
 
-            {/* Botón cancelar solo si está pendiente o procesando */}
             {(order.status === "pending" || order.status === "processing") && (
               <div className="flex justify-end">
                 <Button
                   variant="destructive"
-                  onClick={handleCancel}
+                  onClick={handleCancelRequest}
                   disabled={isCancelling}
                 >
                   {isCancelling ? (
@@ -180,6 +176,15 @@ const OrderDetailPage = () => {
             )}
           </CardContent>
         </Card>
+
+        <ConfirmAlertDialog
+          open={cancelDialogOpen}
+          onOpenChange={setCancelDialogOpen}
+          title="Cancelar pedido"
+          description="Esta acción cancelará el pedido actual. ¿Deseas continuar?"
+          confirmText="Cancelar pedido"
+          onConfirm={handleCancel}
+        />
       </div>
     </MainLayout>
   );

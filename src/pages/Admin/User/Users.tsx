@@ -13,27 +13,39 @@ import { useUsers } from "@/hooks/useUser";
 import { usersService } from "@/api/services/users.service";
 import { UserModal } from "@/components/user/UserModal";
 import type { User } from "@/types/user.types";
+import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
 
 export const UsersPageAdmin = () => {
   const { users, isLoading, error, fetchUsers } = useUsers();
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     void fetchUsers();
   }, [fetchUsers]);
 
-  const handleDeleteUser = async (userId: string) => {
-    setDeletingUserId(userId);
+  const handleDeleteRequest = (userId: string) => {
+    setUserIdToDelete(userId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!userIdToDelete) return;
+
+    setDeletingUserId(userIdToDelete);
 
     try {
-      await usersService.delete(userId);
+      await usersService.delete(userIdToDelete);
       await fetchUsers();
     } catch (err) {
       console.error("No se pudo eliminar el usuario", err);
     } finally {
       setDeletingUserId(null);
+      setDeleteDialogOpen(false);
+      setUserIdToDelete(null);
     }
   };
 
@@ -93,13 +105,18 @@ export const UsersPageAdmin = () => {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{roleName}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" className="mr-2" onClick={() => handleEdit(user)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mr-2"
+                        onClick={() => handleEdit(user)}
+                      >
                         Editar
                       </Button>
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => void handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteRequest(user.id)}
                         disabled={deletingUserId === user.id}
                       >
                         {deletingUserId === user.id
@@ -119,6 +136,15 @@ export const UsersPageAdmin = () => {
           onOpenChange={setModalOpen}
           user={selectedUser}
           onSuccess={fetchUsers}
+        />
+
+        <ConfirmAlertDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="Eliminar usuario"
+          description="Esta acción eliminará el usuario seleccionado. ¿Deseas continuar?"
+          confirmText="Eliminar usuario"
+          onConfirm={handleDeleteConfirm}
         />
       </div>
     </MainLayout>
