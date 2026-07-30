@@ -1,17 +1,13 @@
-// src/store/productStore.ts
 import { create } from "zustand";
 import { productsService } from "@/api/services/product.service";
 import type {
-  CreateProductPayload,
   Product,
   ProductFilters,
   ProductsResponse,
-  UpdateProductPayload,
 } from "../types/product.types";
 import type { PaginationMeta } from "../types/pagination.types";
 
 interface ProductState {
-  // Estado
   products: Product[];
   selectedProduct: Product | null;
   isLoading: boolean;
@@ -19,11 +15,10 @@ interface ProductState {
   pagination: PaginationMeta;
   filters: ProductFilters;
 
-  // Acciones
   fetchProducts: (page?: number, limit?: number) => Promise<void>;
   fetchProductById: (id: string) => Promise<Product>;
-  createProduct: (payload: CreateProductPayload) => Promise<void>;
-  updateProduct: (id: string, payload: UpdateProductPayload) => Promise<void>;
+  createProduct: (payload: FormData) => Promise<void>;
+  updateProduct: (id: string, payload: FormData) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   setFilters: (filters: Partial<ProductFilters>) => void;
   clearFilters: () => void;
@@ -42,7 +37,6 @@ const defaultFilters: ProductFilters = {
 };
 
 export const useProductStore = create<ProductState>((set, get) => ({
-  // Estado inicial
   products: [],
   selectedProduct: null,
   isLoading: false,
@@ -57,14 +51,13 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
   filters: { ...defaultFilters },
 
-  // --- Acciones ---
   fetchProducts: async (page = 1, limit = 10) => {
     const { filters } = get();
     set({ isLoading: true, error: null });
 
     try {
       const response: ProductsResponse = await productsService.getAll(
-        filters,
+        //filters,
         page,
         limit,
       );
@@ -147,17 +140,14 @@ export const useProductStore = create<ProductState>((set, get) => ({
   setFilters: (newFilters: Partial<ProductFilters>) => {
     set((state) => ({
       filters: { ...state.filters, ...newFilters },
-      // Reiniciamos a la primera página al cambiar filtros
       pagination: { ...state.pagination, currentPage: 1 },
     }));
-    // Disparamos una nueva búsqueda con los filtros actualizados
-    const { filters, pagination } = get();
+    const { pagination } = get();
     get().fetchProducts(pagination.currentPage, pagination.itemsPerPage);
   },
 
   clearFilters: () => {
     set({ filters: { ...defaultFilters } });
-    // Refrescamos la lista con los filtros por defecto
     const { pagination } = get();
     get().fetchProducts(pagination.currentPage, pagination.itemsPerPage);
   },

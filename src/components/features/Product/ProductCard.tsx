@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
+import { Product } from "@/types/product.types";
 
 interface ProductCardProps {
   id: string | number;
@@ -20,7 +21,7 @@ interface ProductCardProps {
   price: number;
   image: string;
   year?: number;
-  stock?: number; // stock disponible, para limitar cantidad máxima
+  stock?: number;
   initialQuantity?: number;
   onAddToCart?: (id: string | number, quantity: number) => void;
   className?: string;
@@ -38,11 +39,9 @@ export const ProductCard = ({
   onAddToCart,
   className = "",
 }: ProductCardProps) => {
-  // Estado local de cantidad
   const [quantity, setQuantity] = useState(initialQuantity);
   const { addItem } = useCart();
 
-  // Manejadores
   const increment = () => {
     if (quantity < stock) setQuantity(quantity + 1);
   };
@@ -56,7 +55,7 @@ export const ProductCard = ({
     if (!isNaN(val) && val >= 1 && val <= stock) {
       setQuantity(val);
     } else if (e.target.value === "") {
-      setQuantity(1); // si se vacía, restablecer a 1
+      setQuantity(1);
     }
   };
 
@@ -64,17 +63,16 @@ export const ProductCard = ({
     event.preventDefault();
     event.stopPropagation();
 
-    const product = {
+    const product: Product = {
       id: String(id),
       name,
       description: description ?? "",
       price,
-      category: "general",
-      image,
-      stock: stock ?? 10,
-      year,
-      createdAt: "",
-      updatedAt: "",
+      categoryId: "00000000-0000-0000-0000-000000000000", // usa un UUID real si ya tienes categoría
+      images: image ? [image] : [],
+      stock,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     addItem(product, quantity);
@@ -82,17 +80,14 @@ export const ProductCard = ({
     if (onAddToCart) {
       onAddToCart(id, quantity);
     }
-    // Opcional: resetear cantidad a 1
-    // setQuantity(1);
   };
 
   return (
     <Card
       className={`overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col max-w-xs ${className}`}
     >
-      {/* Imagen + sello */}
       <div className="relative w-full aspect-square overflow-hidden">
-        <Link to={`/product/${5}`} className="block">
+        <Link to={`/product/${id}`} className="block">
           <img
             src={image}
             alt={name}
@@ -121,7 +116,6 @@ export const ProductCard = ({
       </CardHeader>
 
       <CardContent className="pb-1 px-2 space-y-1 flex-grow">
-        {/* Precio y stock */}
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-blue-950">
             ${price.toFixed(2)}
@@ -131,7 +125,6 @@ export const ProductCard = ({
           </Badge>
         </div>
 
-        {/* Controles de cantidad (solo si hay stock) */}
         {stock > 0 && (
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm text-gray-500">Cantidad:</span>
@@ -182,8 +175,7 @@ export const ProductCard = ({
           className="w-full bg-blue-950 hover:bg-blue-700 text-white text-sm py-1"
           disabled={stock === 0}
         >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          {stock > 0 ? "Agregar al carrito" : "Agotado"}
+          Agregar al carrito
         </Button>
       </CardFooter>
     </Card>

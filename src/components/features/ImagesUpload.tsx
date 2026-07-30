@@ -1,12 +1,11 @@
-import { useState, useRef, ChangeEvent } from "react";
+import { useRef, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 
 interface ImageUploadProps {
-  value?: string | null; // URL existente
-  onChange: (url: string | null) => void;
-  onUpload: (file: File) => Promise<string>;
+  value?: string | null;
+  onChange: (file: File | null) => void;
   className?: string;
   label?: string;
 }
@@ -14,27 +13,17 @@ interface ImageUploadProps {
 export const ImageUpload = ({
   value,
   onChange,
-  onUpload,
   className = "",
   label = "Subir imagen",
 }: ImageUploadProps) => {
-  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setIsUploading(true);
-    try {
-      const url = await onUpload(file);
-      onChange(url);
-    } catch (error) {
-      console.error("Error subiendo imagen:", error);
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+    onChange(file);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -65,10 +54,9 @@ export const ImageUpload = ({
             type="button"
             variant="ghost"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
             className="text-xs"
           >
-            {isUploading ? "Subiendo..." : label}
+            {label}
           </Button>
           <Input
             type="file"

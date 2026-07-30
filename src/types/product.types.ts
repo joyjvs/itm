@@ -1,28 +1,39 @@
-import { PaginationMeta } from "./pagination.types";
+export interface ProductCategory {
+  id: string;
+  name: string;
+  description?: string;
+  parentId?: string | null;
+}
 
 export interface Product {
   id: string;
   name: string;
-  slug: string;
-  description: string;
+  description?: string;
   price: number;
-  categoryId: string; // obligatorio, referencia a Category
-  images: string[]; // URLs de imágenes subidas
   stock: number;
-  sku?: string;
-  status: "active" | "inactive";
+  categoryId: string;
+  category?: string | ProductCategory;
+  images: string[];
+  image?: string;
   createdAt: string;
   updatedAt: string;
+  year?: number;
+  slug?: string;
+  sku?: string;
+  status?: "active" | "inactive";
 }
 
-// Interfaz para la creación de un Producto (si aplica)
-export type CreateProductPayload = Omit<
-  Product,
-  "id" | "createdAt" | "updatedAt"
->;
+export type CreateProductPayload = {
+  name: string;
+  description?: string;
+  price: number;
+  stock: number;
+  categoryId: string;
+  images?: string[];
+};
+
 export type UpdateProductPayload = Partial<CreateProductPayload>;
 
-// Interfaz para los parámetros de filtrado
 export interface ProductFilters {
   search?: string;
   category?: string;
@@ -32,8 +43,14 @@ export interface ProductFilters {
   sortOrder?: "asc" | "desc";
 }
 
-// Interfaz para la respuesta de la API (con paginación)
 export interface ProductsResponse {
   data: Product[];
-  meta: PaginationMeta;
+  meta: {
+    currentPage: number;
+    itemsPerPage: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
