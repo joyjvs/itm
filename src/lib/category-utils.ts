@@ -15,7 +15,6 @@ export const buildCategoryTree = (categories: Category[]): Category[] => {
           }
         : null,
     };
-    console.log("node", node);
 
     if (cat.parentId && !node.parent) {
       node.parent = { id: cat.parentId };
@@ -30,7 +29,6 @@ export const buildCategoryTree = (categories: Category[]): Category[] => {
       const parent = map.get(node.parentId);
 
       if (parent) {
-        console.log("parent", parent);
         const parentRef = parent.parent
           ? { id: parent.id, name: parent.name }
           : { id: parent.id };

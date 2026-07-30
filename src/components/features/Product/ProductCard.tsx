@@ -18,7 +18,7 @@ interface ProductCardProps {
   id: string | number;
   name: string;
   description?: string;
-  price: number;
+  price: number | string;
   image: string;
   year?: number;
   stock?: number;
@@ -41,6 +41,10 @@ export const ProductCard = ({
 }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(initialQuantity);
   const { addItem } = useCart();
+
+  const priceValue = typeof price === "number" ? price : Number(price);
+  const normalizedPrice = Number.isFinite(priceValue) ? priceValue : 0;
+  const formattedPrice = normalizedPrice.toFixed(2);
 
   const increment = () => {
     if (quantity < stock) setQuantity(quantity + 1);
@@ -118,7 +122,7 @@ export const ProductCard = ({
       <CardContent className="pb-1 px-2 space-y-1 flex-grow">
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-blue-950">
-            ${price.toFixed(2)}
+            ${formattedPrice}
           </span>
           <Badge variant="secondary" className="bg-blue-100 text-blue-950">
             {stock > 0 ? `Disponible` : "Agotado"}
@@ -175,6 +179,7 @@ export const ProductCard = ({
           className="w-full bg-blue-950 hover:bg-blue-700 text-white text-sm py-1"
           disabled={stock === 0}
         >
+          <ShoppingCart />
           Agregar al carrito
         </Button>
       </CardFooter>
