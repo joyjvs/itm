@@ -1,18 +1,18 @@
 // src/store/orderStore.ts
 import { create } from "zustand";
-import { OrderStore, Order, CreateOrderPayload } from "../types/order.types";
+import { OrderStore, CreateOrderPayload } from "../types/order.types";
 import { orderService } from "../api/services/order.service";
 
-export const useOrderStore = create<OrderStore>((set, get) => ({
+export const useOrderStore = create<OrderStore>((set) => ({
   orders: [],
   isLoading: false,
   error: null,
   selectedOrder: null,
 
-  fetchOrders: async (userId: string) => {
+  fetchOrders: async (userId: string, isAdmin = false) => {
     set({ isLoading: true, error: null });
     try {
-      const orders = await orderService.getOrdersByUserId(userId);
+      const orders = await orderService.getOrders(userId, isAdmin);
       set({ orders, isLoading: false });
     } catch (error) {
       set({
@@ -22,10 +22,10 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
     }
   },
 
-  fetchOrderById: async (orderId: string) => {
+  fetchOrderById: async (orderId: string, userId?: string, isAdmin = false) => {
     set({ isLoading: true, error: null });
     try {
-      const order = await orderService.getOrderById(orderId);
+      const order = await orderService.getOrderById(orderId, userId, isAdmin);
       set({ selectedOrder: order, isLoading: false });
       return order;
     } catch (error) {
@@ -52,10 +52,10 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
     }
   },
 
-  cancelOrder: async (orderId: string) => {
+  cancelOrder: async (orderId: string, userId?: string) => {
     set({ isLoading: true, error: null });
     try {
-      const updated = await orderService.cancelOrder(orderId);
+      const updated = await orderService.cancelOrder(orderId, userId);
       set((state) => ({
         orders: state.orders.map((o) => (o.id === orderId ? updated : o)),
         selectedOrder:

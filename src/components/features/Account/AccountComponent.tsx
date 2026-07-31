@@ -35,7 +35,7 @@ const AccountComponent = () => {
                 Perfil
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/me/orders/${user?.id}`)}>
                 Mis pedidos
                 <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
               </DropdownMenuItem>

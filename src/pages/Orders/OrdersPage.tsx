@@ -1,8 +1,9 @@
-import { JSX, useEffect } from "react";
+import { useEffect, type JSX } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrders } from "@/hooks/useOrders";
+import type { Order, OrderItem } from "@/types/order.types";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,20 +21,27 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  ShoppingBag,
 } from "lucide-react";
 
 const OrdersPage = () => {
   const { user } = useAuth();
-  const { orders, isLoading, error, fetchOrders, fetchOrderById } = useOrders();
+  const { orders, isLoading, error, fetchOrders } = useOrders();
+  const isAdmin = Boolean(
+    user?.role?.toLowerCase().includes("admin") ||
+    user?.roles?.some((role: { name?: string }) =>
+      role.name?.toLowerCase().includes("admin"),
+    ),
+  );
 
   useEffect(() => {
     if (user?.id) {
-      fetchOrders(user.id);
+      void fetchOrders(user.id, isAdmin);
     }
-  }, [user]);
+  }, [user?.id, isAdmin]);
 
-  // Función para obtener el color y texto del estado
   const getStatusInfo = (status: string) => {
+    const normalizedStatus = status?.toLowerCase() || "pending";
     const map: Record<
       string,
       { label: string; className: string; icon: JSX.Element }
@@ -43,10 +51,20 @@ const OrdersPage = () => {
         className: "bg-yellow-100 text-yellow-800",
         icon: <Clock className="w-4 h-4" />,
       },
-      processing: {
-        label: "Procesando",
+      confirmed: {
+        label: "Confirmado",
         className: "bg-blue-100 text-blue-800",
         icon: <Loader2 className="w-4 h-4 animate-spin" />,
+      },
+      preparing: {
+        label: "Preparando",
+        className: "bg-sky-100 text-sky-800",
+        icon: <ShoppingBag className="w-4 h-4" />,
+      },
+      ready_for_pickup: {
+        label: "Listo para recoger",
+        className: "bg-indigo-100 text-indigo-800",
+        icon: <Package className="w-4 h-4" />,
       },
       shipped: {
         label: "Enviado",
@@ -64,7 +82,7 @@ const OrdersPage = () => {
         icon: <XCircle className="w-4 h-4" />,
       },
     };
-    return map[status] || map.pending;
+    return map[normalizedStatus] || map.pending;
   };
 
   return (
@@ -72,7 +90,7 @@ const OrdersPage = () => {
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         <h1 className="text-3xl font-bold text-blue-950 mb-6 flex items-center gap-2">
           <Package className="w-8 h-8" />
-          Mis Órdenes
+          {isAdmin ? "Órdenes del sistema" : "Mis órdenes"}
         </h1>
 
         {isLoading ? (
@@ -84,7 +102,7 @@ const OrdersPage = () => {
           <div className="text-center py-12">
             <p className="text-red-600 mb-4">{error}</p>
             <Button
-              onClick={() => user?.id && fetchOrders(user.id)}
+              onClick={() => user?.id && fetchOrders(user.id, isAdmin)}
               variant="outline"
             >
               Reintentar
@@ -94,19 +112,30 @@ const OrdersPage = () => {
           <Card className="text-center py-12">
             <CardContent>
               <p className="text-gray-500 text-lg">
-                No has realizado ninguna orden aún.
+                {isAdmin
+                  ? "No hay órdenes registradas en el sistema."
+                  : "No has realizado ninguna orden aún."}
               </p>
-              <Link to="/products">
-                <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
-                  Explorar productos
-                </Button>
-              </Link>
+              {!isAdmin && (
+                <Link to="/products">
+                  <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
+                    Explorar productos
+                  </Button>
+                </Link>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-6">
-            {orders.map((order) => {
+            {(orders as Order[]).map((order: Order) => {
               const statusInfo = getStatusInfo(order.status);
+              const customerName =
+                order.user?.fullName ||
+                `${order.user?.firstName ?? ""} ${order.user?.lastName ?? ""}`.trim() ||
+                order.user?.email ||
+                "Cliente";
+              const totalAmount = Number(order.totalPrice ?? 0);
+
               return (
                 <Card
                   key={order.id}
@@ -117,7 +146,7 @@ const OrdersPage = () => {
                       <CardTitle className="text-lg font-semibold">
                         Orden #{order.id}
                       </CardTitle>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {new Date(order.createdAt).toLocaleDateString(
@@ -131,8 +160,14 @@ const OrdersPage = () => {
                         </span>
                         <span className="flex items-center gap-1">
                           <Package className="w-4 h-4" />
-                          {order.items.length} productos
+                          {order.items?.length ?? 0} productos
                         </span>
+                        {isAdmin && (
+                          <span className="flex items-center gap-1">
+                            <ShoppingBag className="w-4 h-4" />
+                            {customerName}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <Badge
@@ -144,58 +179,61 @@ const OrdersPage = () => {
                   </CardHeader>
 
                   <CardContent>
-                    {/* Lista de items */}
                     <div className="space-y-2">
-                      {order.items.map((item) => (
-                        <div
-                          key={item.productId}
-                          className="flex items-center justify-between border-b border-gray-100 py-2 last:border-0"
-                        >
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-12 h-12 object-cover rounded-md"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  "https://picsum.photos/seed/fallback/50/50";
-                              }}
-                            />
-                            <div>
-                              <p className="font-medium text-gray-800">
-                                {item.name}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                Cantidad: {item.quantity}
-                              </p>
+                      {(order.items ?? []).map((item: OrderItem) => {
+                        const unitPrice = Number(
+                          item.unitPrice ?? item.product?.price ?? 0,
+                        );
+                        const imageUrl = item.product?.images?.[0];
+                        return (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between border-b border-gray-100 py-2 last:border-0"
+                          >
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={imageUrl}
+                                alt={item.product?.name ?? "Producto"}
+                                className="w-12 h-12 object-cover rounded-md"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src =
+                                    "https://picsum.photos/seed/fallback/50/50";
+                                }}
+                              />
+                              <div>
+                                <p className="font-medium text-gray-800">
+                                  {item.product?.name ?? "Producto"}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  Cantidad: {item.quantity}
+                                </p>
+                              </div>
                             </div>
+                            <span className="font-medium">
+                              ${(unitPrice * item.quantity).toFixed(2)}
+                            </span>
                           </div>
-                          <span className="font-medium">
-                            ${(item.price * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
-                    {/* Subtotal y detalles */}
                     <div className="mt-4 flex flex-col sm:flex-row justify-between gap-2 bg-gray-50 p-3 rounded-lg">
                       <div>
                         <p className="text-sm text-gray-500">
-                          Envío: {order.shippingAddress}
+                          Método de entrega:{" "}
+                          {order.deliveryMethod === "delivery"
+                            ? "Domicilio"
+                            : "Recogida"}
                         </p>
                         <p className="text-sm text-gray-500">
-                          Pago: {order.paymentMethod}
+                          Dirección:{" "}
+                          {order.deliveryAddress || "Sin dirección registrada"}
                         </p>
-                        {order.trackingNumber && (
-                          <p className="text-sm text-gray-500">
-                            Número de seguimiento: {order.trackingNumber}
-                          </p>
-                        )}
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-500">Total</p>
                         <p className="text-2xl font-bold text-blue-600">
-                          ${order.totalAmount.toFixed(2)}
+                          ${totalAmount.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -203,7 +241,7 @@ const OrdersPage = () => {
 
                   <CardFooter className="flex justify-end">
                     <Button variant="outline" size="sm" asChild>
-                      <Link to={`/orders/${order.id}`}>Ver detalle</Link>
+                      <Link to={`/order/${order.id}`}>Ver detalle</Link>
                     </Button>
                   </CardFooter>
                 </Card>

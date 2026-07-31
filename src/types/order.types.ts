@@ -61,10 +61,14 @@ export interface OrderStore {
   isLoading: boolean;
   error: string | null;
   selectedOrder: Order | null;
-  fetchOrders: (userId: string) => Promise<void>;
-  fetchOrderById: (orderId: string) => Promise<Order | null>;
+  fetchOrders: (userId: string, isAdmin?: boolean) => Promise<void>;
+  fetchOrderById: (
+    orderId: string,
+    userId?: string,
+    isAdmin?: boolean,
+  ) => Promise<Order | null>;
   createOrder: (payload: CreateOrderPayload, userId: string) => Promise<Order>;
-  cancelOrder: (orderId: string) => Promise<Order>;
+  cancelOrder: (orderId: string, userId?: string) => Promise<Order>;
   clearError: () => void;
 }
 
