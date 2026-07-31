@@ -66,4 +66,11 @@ export const ENDPOINTS = {
   UPLOAD: {
     IMAGE: "/api/upload/image",
   },
+  // Orders
+  ORDERS: {
+    LIST: "/api/orders",
+    DETAIL: (id: string) => `/api/orders/${id}`,
+    CREATE: (userId: string) => `/api/orders/${userId}`,
+    CANCEL: (id: string) => `/api/orders/${id}/cancel`,
+  },
 };

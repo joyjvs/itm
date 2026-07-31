@@ -3,6 +3,11 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { CartStore, CartItem } from "../types/cart.types";
 import { Product } from "../types/product.types";
 
+const normalizePrice = (price: number | string): number => {
+  const value = typeof price === "number" ? price : Number(price);
+  return Number.isFinite(value) ? value : 0;
+};
+
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
@@ -35,7 +40,7 @@ export const useCartStore = create<CartStore>()(
             id: crypto.randomUUID(), // o usar Date.now() para IDs únicos
             productId: product.id,
             name: product.name,
-            price: product.price,
+            price: normalizePrice(product.price),
             image: product.image,
             quantity: Math.min(quantity, product.stock),
             stock: product.stock,
@@ -49,7 +54,7 @@ export const useCartStore = create<CartStore>()(
           0,
         );
         const totalPrice = newItems.reduce(
-          (sum, item) => sum + item.price * item.quantity,
+          (sum, item) => sum + normalizePrice(item.price) * item.quantity,
           0,
         );
 
@@ -65,7 +70,7 @@ export const useCartStore = create<CartStore>()(
           0,
         );
         const totalPrice = newItems.reduce(
-          (sum, item) => sum + item.price * item.quantity,
+          (sum, item) => sum + normalizePrice(item.price) * item.quantity,
           0,
         );
         set({ items: newItems, totalItems, totalPrice });
@@ -90,7 +95,7 @@ export const useCartStore = create<CartStore>()(
         );
         const totalItems = newItems.reduce((sum, i) => sum + i.quantity, 0);
         const totalPrice = newItems.reduce(
-          (sum, i) => sum + i.price * i.quantity,
+          (sum, i) => sum + normalizePrice(i.price) * i.quantity,
           0,
         );
         set({ items: newItems, totalItems, totalPrice });
@@ -103,6 +108,26 @@ export const useCartStore = create<CartStore>()(
     {
       name: "cart-storage", // clave en localStorage
       storage: createJSONStorage(() => localStorage),
+      migrate: (persistedState: any) => {
+        if (!persistedState) return persistedState;
+
+        const items = (persistedState.items ?? []).map((item: any) => ({
+          ...item,
+          price: normalizePrice(item.price),
+        }));
+
+        const totalPrice = items.reduce(
+          (sum: number, item: any) =>
+            sum + normalizePrice(item.price) * item.quantity,
+          0,
+        );
+
+        return {
+          ...persistedState,
+          items,
+          totalPrice,
+        };
+      },
     },
   ),
 );

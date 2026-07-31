@@ -5,25 +5,55 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
-export interface OrderItem {
-  productId: string;
+export interface OrderProduct {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
   name: string;
-  price: number;
+  description: string;
+  price: string;
+  stock: number;
+  images: string[];
+  category: string | null;
+  categoryId: string;
+}
+
+export interface OrderItem {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
   quantity: number;
-  image: string;
+  unitPrice: string;
+  orderId: string;
+  productId: string;
+  product: OrderProduct;
+}
+
+export interface OrderUser {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  email: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  isActive: boolean;
+  phone: string;
+  address: string;
 }
 
 export interface Order {
   id: string;
-  userId: string;
-  items: OrderItem[];
-  totalAmount: number;
-  status: OrderStatus;
   createdAt: string;
   updatedAt: string;
-  shippingAddress: string;
-  paymentMethod: string;
-  trackingNumber?: string;
+  status: OrderStatus;
+  deliveryMethod: "delivery" | "pickup";
+  deliveryAddress: string;
+  totalPrice: string;
+  user: OrderUser;
+  userId: string;
+  items: OrderItem[];
 }
 
 export interface OrderStore {
@@ -33,15 +63,25 @@ export interface OrderStore {
   selectedOrder: Order | null;
   fetchOrders: (userId: string) => Promise<void>;
   fetchOrderById: (orderId: string) => Promise<Order | null>;
-  createOrder: (payload: Order) => Promise<Order>;
+  createOrder: (payload: CreateOrderPayload, userId: string) => Promise<Order>;
   cancelOrder: (orderId: string) => Promise<Order>;
   clearError: () => void;
 }
 
+export interface Item {
+  productId: string;
+  quantity: number;
+}
+
+export enum DeliveryMethod {
+  PICKUP = "pickup",
+  DELIVERY = "delivery",
+}
+
 export interface CreateOrderPayload {
-  items: OrderItem[];
-  paymentMethod: string;
-  shippingAddress: string;
+  items: Item[];
+  deliveryMethod: DeliveryMethod;
+  deliveryAddress: string;
 }
 
 export interface OrdersResponse {

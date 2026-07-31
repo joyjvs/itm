@@ -25,6 +25,11 @@ const statusLabels = {
   cancelled: "Cancelado",
 };
 
+const deliveryMethodLabels: Record<string, string> = {
+  delivery: "Domicilio",
+  pickup: "Recogida",
+};
+
 const OrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -83,6 +88,7 @@ const OrderDetailPage = () => {
   }
 
   const order = selectedOrder;
+  const totalPrice = Number(order.totalPrice);
 
   return (
     <MainLayout>
@@ -113,47 +119,63 @@ const OrderDetailPage = () => {
                 </p>
               </div>
               <div>
-                <p className="text-gray-500">Método de pago</p>
-                <p className="font-medium">{order.paymentMethod}</p>
+                <p className="text-gray-500">Método de entrega</p>
+                <p className="font-medium">
+                  {deliveryMethodLabels[order.deliveryMethod] ||
+                    order.deliveryMethod}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-500">Cliente</p>
+                <p className="font-medium">{order.user.fullName}</p>
+                <p className="text-sm text-gray-500">{order.user.email}</p>
+                <p className="text-sm text-gray-500">{order.user.phone}</p>
               </div>
               <div className="md:col-span-2">
-                <p className="text-gray-500">Dirección de envío</p>
-                <p className="font-medium">{order.shippingAddress}</p>
+                <p className="text-gray-500">Dirección de entrega</p>
+                <p className="font-medium">{order.deliveryAddress}</p>
               </div>
             </div>
 
             <div>
               <h3 className="font-semibold text-lg mb-2">Productos</h3>
               <div className="space-y-2">
-                {order.items.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between border-b pb-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      {item.image && (
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                      )}
-                      <div>
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-gray-500">
-                          Cantidad: {item.quantity}
-                        </p>
+                {order.items.map((item) => {
+                  const unitPrice = Number(item.unitPrice);
+                  const subtotal = unitPrice * item.quantity;
+                  const imageUrl = item.product?.images?.[0];
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between border-b pb-2"
+                    >
+                      <div className="flex items-center gap-3">
+                        {imageUrl && (
+                          <img
+                            src={imageUrl}
+                            alt={item.product.name}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                        )}
+                        <div>
+                          <p className="font-medium">{item.product.name}</p>
+                          <p className="text-sm text-gray-500">
+                            Cantidad: {item.quantity}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Precio unidad: ${unitPrice.toFixed(2)}
+                          </p>
+                        </div>
                       </div>
+                      <p className="font-bold">${subtotal.toFixed(2)}</p>
                     </div>
-                    <p className="font-bold">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="flex justify-end mt-4">
                 <p className="text-xl font-bold text-blue-600">
-                  Total: ${order.totalAmount.toFixed(2)}
+                  Total: ${totalPrice.toFixed(2)}
                 </p>
               </div>
             </div>

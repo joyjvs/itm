@@ -37,7 +37,6 @@ export const ProductList = ({
       <TableHeader>
         <TableRow>
           <TableHead>Nombre</TableHead>
-          <TableHead>Slug</TableHead>
           <TableHead>Precio</TableHead>
           <TableHead>Stock</TableHead>
           <TableHead>Estado</TableHead>
@@ -48,7 +47,6 @@ export const ProductList = ({
         {products.map((product) => (
           <TableRow key={product.id}>
             <TableCell>{product.name}</TableCell>
-            <TableCell>{product.slug}</TableCell>
             <TableCell>{formatPrice(product.price)}</TableCell>
             <TableCell>{product.stock}</TableCell>
             <TableCell>

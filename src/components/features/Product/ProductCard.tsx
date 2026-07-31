@@ -71,7 +71,7 @@ export const ProductCard = ({
       id: String(id),
       name,
       description: description ?? "",
-      price,
+      price: normalizedPrice,
       categoryId: "00000000-0000-0000-0000-000000000000", // usa un UUID real si ya tienes categoría
       images: image ? [image] : [],
       stock,

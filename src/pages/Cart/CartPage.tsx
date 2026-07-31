@@ -1,6 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { useCart } from "@/hooks/useCart";
+import { useOrders } from "@/hooks/useOrders";
+import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,6 +20,7 @@ import {
   ArrowLeft,
   CreditCard,
 } from "lucide-react";
+import { CreateOrderPayload, DeliveryMethod } from "@/types/order.types";
 
 const CartPage = () => {
   const {
@@ -27,6 +31,20 @@ const CartPage = () => {
     removeItem,
     clearCart,
   } = useCart();
+
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(
+    DeliveryMethod.PICKUP,
+  );
+
+  const normalizeCartPrice = (price: number | string) => {
+    const value = typeof price === "number" ? price : Number(price);
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  const { createOrder } = useOrders();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [isCreating, setIsCreating] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -48,6 +66,33 @@ const CartPage = () => {
       </MainLayout>
     );
   }
+
+  const create = async () => {
+    if (!user) return navigate("/auth/login");
+    if (!user.address || user.address.length < 10) {
+      // pedir al usuario que complete su dirección
+      return navigate("/auth/profile");
+    }
+
+    setIsCreating(true);
+    try {
+      const payload: CreateOrderPayload = {
+        items: items.map((i) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+        })),
+        deliveryMethod: deliveryMethod,
+        deliveryAddress: user.address || "",
+      };
+      const order = await createOrder(payload, user.id);
+      clearCart();
+      navigate(`/order/${order.id}`);
+    } catch (error) {
+      console.error("Error creando orden", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   return (
     <MainLayout>
@@ -84,7 +129,7 @@ const CartPage = () => {
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800">{item.name}</h3>
                     <p className="text-blue-950 font-bold">
-                      ${item.price.toFixed(2)}
+                      ${normalizeCartPrice(item.price).toFixed(2)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -116,7 +161,10 @@ const CartPage = () => {
                   </div>
                   <div className="text-right min-w-[80px]">
                     <p className="font-bold text-gray-800">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      $
+                      {(normalizeCartPrice(item.price) * item.quantity).toFixed(
+                        2,
+                      )}
                     </p>
                     <Button
                       variant="ghost"
@@ -159,11 +207,34 @@ const CartPage = () => {
                     </span>
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-600">
+                    Método de entrega
+                  </label>
+                  <select
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={deliveryMethod}
+                    onChange={(e) =>
+                      setDeliveryMethod(e.target.value as DeliveryMethod)
+                    }
+                  >
+                    <option value={DeliveryMethod.PICKUP}>
+                      Recogida en tienda
+                    </option>
+                    <option value={DeliveryMethod.DELIVERY}>
+                      Entrega a domicilio
+                    </option>
+                  </select>
+                </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-2">
-                <Button className="w-full bg-blue-950 hover:bg-blue-700">
+                <Button
+                  className="w-full bg-blue-950 hover:bg-blue-700"
+                  onClick={() => create()}
+                >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Crear orden
+                  {isCreating ? "Creando orden..." : "Crear orden"}
                 </Button>
                 <Button
                   variant="outline"

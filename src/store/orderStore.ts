@@ -1,6 +1,6 @@
 // src/store/orderStore.ts
 import { create } from "zustand";
-import { OrderStore, Order } from "../types/order.types";
+import { OrderStore, Order, CreateOrderPayload } from "../types/order.types";
 import { orderService } from "../api/services/order.service";
 
 export const useOrderStore = create<OrderStore>((set, get) => ({
@@ -26,7 +26,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const order = await orderService.getOrderById(orderId);
-      set({ isLoading: false });
+      set({ selectedOrder: order, isLoading: false });
       return order;
     } catch (error) {
       set({
@@ -37,10 +37,10 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
     }
   },
 
-  createOrder: async (payload: Order) => {
+  createOrder: async (payload: CreateOrderPayload, userId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const newOrder = await orderService.createOrder(payload);
+      const newOrder = await orderService.createOrder(payload, userId);
       set((state) => ({
         orders: [newOrder, ...state.orders],
         isLoading: false,
