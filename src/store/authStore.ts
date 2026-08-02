@@ -4,6 +4,7 @@ import type { User, AuthResponse } from "../types/auth.types";
 import { authService } from "../api/services/auth.service";
 import { setAuthToken, removeAuthToken } from "../api/client";
 import { showError, showInfo, showSuccess } from "../utils/toast";
+import { AUTH_EXPIRED_EVENT } from "../utils/authEvents";
 
 interface AuthState {
   user: User | null;
@@ -157,3 +158,9 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
+
+if (typeof window !== "undefined") {
+  window.addEventListener(AUTH_EXPIRED_EVENT, () => {
+    useAuthStore.getState().logout();
+  });
+}

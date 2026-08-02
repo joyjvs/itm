@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
+  useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { AUTH_EXPIRED_EVENT } from "@/utils/authEvents";
 
 // Páginas de Autenticación
 import RegisterPage from "@/pages/Auth/RegisterPage";
@@ -59,9 +62,31 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 //   return <>{children}</>;
 // };
 
+const AuthRedirectHandler = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      if (location.pathname !== "/login" && location.pathname !== "/register") {
+        navigate("/login", { replace: true });
+      }
+    };
+
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+
+    return () => {
+      window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    };
+  }, [location.pathname, navigate]);
+
+  return null;
+};
+
 function RoutesComponents() {
   return (
     <Router>
+      <AuthRedirectHandler />
       <Routes>
         {/* Rutas Públicas */}
         <Route path="/" element={<HomePage />} />
@@ -121,7 +146,7 @@ function RoutesComponents() {
           path="/me/orders/:id"
           element={
             <ProtectedRoute>
-              <MyOrdersPage/>
+              <MyOrdersPage />
             </ProtectedRoute>
           }
         />

@@ -5,6 +5,7 @@ import axios, {
 } from "axios";
 import { API_BASE_URL } from "./endpoints";
 import type { ApiError } from "../types/api.types";
+import { dispatchAuthExpired } from "../utils/authEvents";
 
 const TOKEN_KEY = "auth_token";
 
@@ -33,8 +34,8 @@ axiosClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiError>) => {
     if (error.response?.status === 401) {
-      // Token expirado o inválido
       localStorage.removeItem(TOKEN_KEY);
+      dispatchAuthExpired();
     }
 
     // Retornar el error para que lo maneje quien haga la llamada
