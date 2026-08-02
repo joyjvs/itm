@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import Alert from "../common/Alert";
 import { User } from "@/types/user.types";
 import { usersService } from "@/api/services/users.service";
+import { showError, showSuccess } from "@/utils/toast";
 
 interface RegisterFormProps {
   user?: User | null;
@@ -64,8 +65,7 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
       setSubmitError(null);
       clearError();
       if (user && isEditing) {
-        //llamar al editar usuario
-        const updateUser = data as UserFormData;
+        const updateUser = data as UpdateUserFormData;
         await usersService.update(user.id, {
           address: updateUser.address,
           firstName: updateUser.firstName,
@@ -73,6 +73,7 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
           lastName: updateUser.lastName,
           phone: updateUser.phone,
         });
+        showSuccess("Usuario actualizado", "Los cambios del usuario se guardaron correctamente.");
       } else {
         const createUser = data as RegisterFormData;
         await authRegister(
@@ -91,6 +92,7 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setSubmitError(message || "Error al registrarse");
+      showError(isEditing ? "No se pudo actualizar el usuario" : "No se pudo crear el usuario", message);
     }
   };
 

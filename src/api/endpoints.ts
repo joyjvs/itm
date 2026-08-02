@@ -73,6 +73,7 @@ export const ENDPOINTS = {
     DETAIL: (id: string) => `/api/orders/${id}`,
     MY_ORDER: (id: string, userId: string) => `/api/orders/me/${id}/${userId}`,
     CREATE: (userId: string) => `/api/orders/${userId}`,
+    UPDATE_STATUS: (id: string) => `/api/orders/${id}/status`,
     CANCEL: (id: string, userId?: string) =>
       userId
         ? `/api/orders/me/${id}/${userId}/cancel`

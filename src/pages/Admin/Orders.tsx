@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Loader2, Package, ShoppingBag, Truck } from "lucide-react";
+import type { OrderStatus } from "@/types/order.types";
 
 const statusStyles: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -36,6 +37,7 @@ export const OrdersPageAdmin = () => {
     isLoading,
     error,
     fetchOrders,
+    updateOrderStatus,
     currentPage,
     itemsPerPage,
     totalItems,
@@ -49,6 +51,14 @@ export const OrdersPageAdmin = () => {
       void fetchOrders(user.id, true);
     }
   }, [user?.id, fetchOrders]);
+
+  const handleStatusChange = async (orderId: string, status: OrderStatus) => {
+    try {
+      await updateOrderStatus(orderId, status);
+    } catch (error) {
+      console.error("Error al cambiar el estado de la orden", error);
+    }
+  };
 
   return (
     <MainLayout>
@@ -151,14 +161,33 @@ export const OrdersPageAdmin = () => {
                         <p className="text-xl font-semibold text-blue-600">
                           ${Number(order.totalPrice ?? 0).toFixed(2)}
                         </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                          className="mt-2"
-                        >
-                          <Link to={`/order/${order.id}`}>Ver detalle</Link>
-                        </Button>
+                        <div className="mt-2 flex flex-col items-end gap-2">
+                          <label className="text-xs text-gray-500">Estado</label>
+                          <select
+                            className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm"
+                            value={order.status}
+                            onChange={(event) =>
+                              void handleStatusChange(
+                                order.id,
+                                event.target.value as OrderStatus,
+                              )
+                            }
+                          >
+                            <option value="pending">Pendiente</option>
+                            <option value="confirmed">Confirmado</option>
+                            <option value="preparing">Preparando</option>
+                            <option value="ready_for_pickup">Listo para recoger</option>
+                            <option value="shipped">Enviado</option>
+                            <option value="delivered">Entregado</option>
+                            <option value="cancelled">Cancelado</option>
+                          </select>
+                          <Link
+                            to={`/order/${order.id}`}
+                            className="inline-flex w-full items-center justify-center rounded-lg border border-border bg-background px-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                          >
+                            Ver detalle
+                          </Link>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

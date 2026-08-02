@@ -41,7 +41,7 @@ export const useCartStore = create<CartStore>()(
             productId: product.id,
             name: product.name,
             price: normalizePrice(product.price),
-            image: product.image,
+            image: product.images?.[0] ?? product.image ?? "",
             quantity: Math.min(quantity, product.stock),
             stock: product.stock,
           };

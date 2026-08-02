@@ -15,6 +15,7 @@ import { usersService } from "@/api/services/users.service";
 import { UserModal } from "@/components/user/UserModal";
 import type { User } from "@/types/user.types";
 import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
+import { showError, showSuccess } from "@/utils/toast";
 
 export const UsersPageAdmin = () => {
   const {
@@ -52,7 +53,10 @@ export const UsersPageAdmin = () => {
     try {
       await usersService.delete(userIdToDelete);
       await fetchUsers();
+      showSuccess("Usuario eliminado", "El usuario se eliminó correctamente.");
     } catch (err) {
+      const message = err instanceof Error ? err.message : "No se pudo eliminar el usuario";
+      showError("No se pudo eliminar el usuario", message);
       console.error("No se pudo eliminar el usuario", err);
     } finally {
       setDeletingUserId(null);

@@ -6,6 +6,7 @@ import type {
   ProductsResponse,
 } from "../types/product.types";
 import type { PaginationMeta } from "../types/pagination.types";
+import { showError, showSuccess } from "../utils/toast";
 
 interface ProductState {
   products: Product[];
@@ -97,11 +98,14 @@ export const useProductStore = create<ProductState>((set, get) => ({
     try {
       await productsService.create(payload);
       await get().fetchProducts(1, get().pagination.itemsPerPage);
+      showSuccess("Producto creado", "El producto se registró correctamente.");
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Error al crear producto";
       set({
-        error: (error as Error)?.message || "Error al crear producto",
+        error: message,
         isLoading: false,
       });
+      showError("No se pudo crear el producto", message);
       throw error;
     }
   },
@@ -114,11 +118,14 @@ export const useProductStore = create<ProductState>((set, get) => ({
         get().pagination.currentPage,
         get().pagination.itemsPerPage,
       );
+      showSuccess("Producto actualizado", "Los cambios se guardaron correctamente.");
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Error al actualizar producto";
       set({
-        error: (error as Error)?.message || "Error al actualizar producto",
+        error: message,
         isLoading: false,
       });
+      showError("No se pudo actualizar el producto", message);
       throw error;
     }
   },
@@ -131,11 +138,14 @@ export const useProductStore = create<ProductState>((set, get) => ({
         get().pagination.currentPage,
         get().pagination.itemsPerPage,
       );
+      showSuccess("Producto eliminado", "El producto se eliminó correctamente.");
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Error al eliminar producto";
       set({
-        error: (error as Error)?.message || "Error al eliminar producto",
+        error: message,
         isLoading: false,
       });
+      showError("No se pudo eliminar el producto", message);
       throw error;
     }
   },

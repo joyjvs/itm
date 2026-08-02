@@ -25,6 +25,7 @@ import {
   Calendar,
 } from "lucide-react";
 import InputComponent from "@/components/common/InputComponent";
+import { showError } from "@/utils/toast";
 
 // Esquema de validación para editar perfil
 const profileSchema = z.object({
@@ -44,7 +45,6 @@ const ProfilePage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors},
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -62,6 +62,8 @@ const ProfilePage = () => {
       await updateProfile(user!.id, values);
       setIsEditing(false);
     } catch (error) {
+      const message = error instanceof Error ? error.message : "No se pudo guardar el perfil";
+      showError("No se pudo guardar el perfil", message);
       console.log(error);
     }
   };

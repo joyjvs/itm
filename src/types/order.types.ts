@@ -1,9 +1,13 @@
-export type OrderStatus =
+export type BackendOrderStatus =
   | "pending"
-  | "processing"
+  | "confirmed"
+  | "preparing"
+  | "ready_for_pickup"
   | "shipped"
   | "delivered"
   | "cancelled";
+
+export type OrderStatus = BackendOrderStatus | "processing";
 
 export interface OrderProduct {
   id: string;
@@ -79,6 +83,7 @@ export interface OrderStore {
     isAdmin?: boolean,
   ) => Promise<Order | null>;
   createOrder: (payload: CreateOrderPayload, userId: string) => Promise<Order>;
+  updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<Order>;
   cancelOrder: (orderId: string, userId?: string) => Promise<Order>;
   setPage: (page: number) => void;
   setItemsPerPage: (limit: number) => void;

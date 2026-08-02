@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
+import { showError } from "@/utils/toast";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -72,6 +73,8 @@ const OrderDetailPage = () => {
       await fetchOrderById(selectedOrder.id, user?.id, isAdmin);
       setCancelDialogOpen(false);
     } catch (error) {
+      const message = error instanceof Error ? error.message : "No se pudo cancelar el pedido";
+      showError("No se pudo cancelar el pedido", message);
       console.log(error);
     } finally {
       setIsCancelling(false);
@@ -112,8 +115,9 @@ const OrderDetailPage = () => {
     `${order.user?.firstName ?? ""} ${order.user?.lastName ?? ""}`.trim() ||
     order.user?.email ||
     "Cliente";
+  const normalizedStatus = (order.status || "pending").toLowerCase();
   const canCancel =
-    !isAdmin && (order.status === "pending" || order.status === "processing");
+    !isAdmin && ["pending", "confirmed", "processing"].includes(normalizedStatus);
 
   return (
     <MainLayout>

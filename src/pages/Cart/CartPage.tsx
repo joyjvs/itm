@@ -21,6 +21,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { CreateOrderPayload, DeliveryMethod } from "@/types/order.types";
+import { showError } from "@/utils/toast";
 
 const CartPage = () => {
   const {
@@ -88,6 +89,8 @@ const CartPage = () => {
       clearCart();
       navigate(`/order/${order.id}`);
     } catch (error) {
+      const message = error instanceof Error ? error.message : "No se pudo crear la orden";
+      showError("No se pudo crear la orden", message);
       console.error("Error creando orden", error);
     } finally {
       setIsCreating(false);

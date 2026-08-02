@@ -38,6 +38,11 @@ const statusMap: Record<
     className: "bg-blue-100 text-blue-800",
     icon: <Loader2 className="w-4 h-4 animate-spin" />,
   },
+  processing: {
+    label: "Procesando",
+    className: "bg-blue-100 text-blue-800",
+    icon: <Loader2 className="w-4 h-4 animate-spin" />,
+  },
   preparing: {
     label: "Preparando",
     className: "bg-sky-100 text-sky-800",

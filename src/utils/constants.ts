@@ -1,7 +1,7 @@
 // Constantes de la aplicación
 export const APP_NAME = "IberoMax";
 
-export const TOAST_DURATION = 3000;
+export const TOAST_DURATION = 4000;
 
 export const DATE_FORMAT = {
   FULL: "dd/MM/yyyy HH:mm",

@@ -56,6 +56,11 @@ const OrdersPage = () => {
         className: "bg-blue-100 text-blue-800",
         icon: <Loader2 className="w-4 h-4 animate-spin" />,
       },
+      processing: {
+        label: "Procesando",
+        className: "bg-blue-100 text-blue-800",
+        icon: <Loader2 className="w-4 h-4 animate-spin" />,
+      },
       preparing: {
         label: "Preparando",
         className: "bg-sky-100 text-sky-800",
@@ -240,9 +245,12 @@ const OrdersPage = () => {
                   </CardContent>
 
                   <CardFooter className="flex justify-end">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to={`/order/${order.id}`}>Ver detalle</Link>
-                    </Button>
+                    <Link
+                      to={`/order/${order.id}`}
+                      className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                    >
+                      Ver detalle
+                    </Link>
                   </CardFooter>
                 </Card>
               );

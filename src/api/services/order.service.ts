@@ -1,6 +1,11 @@
 import axiosClient from "../client";
 import { ENDPOINTS } from "../endpoints";
-import type { Order, CreateOrderPayload } from "../../types/order.types";
+import type {
+  Order,
+  CreateOrderPayload,
+  BackendOrderStatus,
+  OrderStatus,
+} from "../../types/order.types";
 import type { PaginatedResponse } from "@/types/pagination.types";
 
 const normalizeOrdersResponse = (payload: unknown): Order[] => {
@@ -26,10 +31,38 @@ const normalizeSingleOrderResponse = (payload: unknown): Order | null => {
 
   if ("data" in payload) {
     const data = (payload as { data?: unknown }).data;
-    return data && typeof data === "object" ? (data as Order) : null;
+    return data && typeof data === "object" ? normalizeOrder((data as Order)) : null;
   }
 
-  return payload as Order;
+  return normalizeOrder(payload as Order);
+};
+
+const normalizeOrder = (order: Order): Order => ({
+  ...order,
+  status: normalizeOrderStatus(order.status),
+});
+
+const normalizeOrderStatus = (status: string | undefined | null): BackendOrderStatus => {
+  const normalized = status?.toLowerCase();
+
+  switch (normalized) {
+    case "confirmed":
+    case "processing":
+      return "confirmed";
+    case "preparing":
+      return "preparing";
+    case "ready_for_pickup":
+      return "ready_for_pickup";
+    case "shipped":
+      return "shipped";
+    case "delivered":
+      return "delivered";
+    case "cancelled":
+      return "cancelled";
+    case "pending":
+    default:
+      return "pending";
+  }
 };
 
 export const orderService = {
@@ -50,7 +83,7 @@ export const orderService = {
     const pagination = response.data?.pagination || response.data?.meta || {};
 
     return {
-      data: rawData,
+      data: rawData.map((order) => normalizeOrder(order)),
       meta: {
         currentPage: pagination.page ?? page,
         itemsPerPage: pagination.limit ?? limit,
@@ -83,13 +116,21 @@ export const orderService = {
     const response = await axiosClient.post(ENDPOINTS.ORDERS.CREATE(userId), {
       ...orderData,
     });
-    return response.data as Order;
+    return normalizeOrder(response.data as Order);
+  },
+
+  updateOrderStatus: async (orderId: string, status: OrderStatus): Promise<Order> => {
+    const normalizedStatus = normalizeOrderStatus(status);
+    const response = await axiosClient.patch(ENDPOINTS.ORDERS.UPDATE_STATUS(orderId), {
+      status: normalizedStatus,
+    });
+    return normalizeOrder(response.data as Order);
   },
 
   cancelOrder: async (orderId: string, userId?: string): Promise<Order> => {
     const response = await axiosClient.patch(
       ENDPOINTS.ORDERS.CANCEL(orderId, userId),
     );
-    return response.data as Order;
+    return normalizeOrder(response.data as Order);
   },
 };

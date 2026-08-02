@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { User, AuthResponse } from "../types/auth.types";
 import { authService } from "../api/services/auth.service";
 import { setAuthToken, removeAuthToken } from "../api/client";
+import { showError, showInfo, showSuccess } from "../utils/toast";
 
 interface AuthState {
   user: User | null;
@@ -48,6 +49,7 @@ export const useAuthStore = create<AuthState>()(
             token: response.access_token,
             isLoading: false,
           });
+          showSuccess("Inicio de sesión correcto", "Bienvenido de nuevo.");
         } catch (error: unknown) {
           set({
             error: "Credenciales inválidas.",
@@ -75,18 +77,17 @@ export const useAuthStore = create<AuthState>()(
             address,
             phone,
           });
-          console.log(response)
-          // setAuthToken(response.access_token);
           set({
-            //user: response.user,
-            //token: response.access_token,
             isLoading: false,
           });
+          showSuccess("Usuario creado", "El usuario se registró correctamente.");
         } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : "Error al registrarse";
           set({
-            error: "Error al registrarse",
+            error: message,
             isLoading: false,
           });
+          showError("No se pudo crear el usuario", message);
           throw error;
         }
       },
@@ -94,6 +95,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         removeAuthToken();
         set({ user: null, token: null, error: null });
+        showInfo("Sesión cerrada", "Vuelve cuando quieras.");
       },
 
       changePassword: async (
@@ -117,11 +119,13 @@ export const useAuthStore = create<AuthState>()(
       updateProfile: async (userId: string,data: Partial<User>) => {
         set({ isLoading: true, error: null });
         try {
-          // Llamada al servicio
           const updatedUser = await authService.updateProfile(userId,data);
           set({ user: updatedUser, isLoading: false });
+          showSuccess("Perfil actualizado", "Tus datos se guardaron correctamente.");
         } catch (error) {
-          set({ error: (error as Error).message, isLoading: false });
+          const message = error instanceof Error ? error.message : "No se pudo actualizar el perfil";
+          set({ error: message, isLoading: false });
+          showError("No se pudo actualizar el perfil", message);
           throw error;
         }
       },

@@ -1,7 +1,8 @@
 // src/store/orderStore.ts
 import { create } from "zustand";
-import { OrderStore, CreateOrderPayload } from "../types/order.types";
+import { OrderStore, CreateOrderPayload, OrderStatus } from "../types/order.types";
 import { orderService } from "../api/services/order.service";
+import { showError, showSuccess } from "../utils/toast";
 
 export const useOrderStore = create<OrderStore>((set, get) => ({
   orders: [],
@@ -87,9 +88,32 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
         orders: [newOrder, ...state.orders],
         isLoading: false,
       }));
+      showSuccess("Pedido creado", "Tu orden se generó correctamente.");
       return newOrder;
     } catch (error) {
-      set({ error: (error as Error).message, isLoading: false });
+      const message = error instanceof Error ? error.message : "No se pudo crear la orden";
+      set({ error: message, isLoading: false });
+      showError("No se pudo crear la orden", message);
+      throw error;
+    }
+  },
+
+  updateOrderStatus: async (orderId: string, status: OrderStatus) => {
+    set({ isLoading: true, error: null });
+    try {
+      const updated = await orderService.updateOrderStatus(orderId, status);
+      set((state) => ({
+        orders: state.orders.map((o) => (o.id === orderId ? updated : o)),
+        selectedOrder:
+          state.selectedOrder?.id === orderId ? updated : state.selectedOrder,
+        isLoading: false,
+      }));
+      showSuccess("Estado actualizado", "El estado de la orden cambió correctamente.");
+      return updated;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "No se pudo actualizar el estado";
+      set({ error: message, isLoading: false });
+      showError("No se pudo actualizar el estado", message);
       throw error;
     }
   },
@@ -104,9 +128,12 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
           state.selectedOrder?.id === orderId ? updated : state.selectedOrder,
         isLoading: false,
       }));
+      showSuccess("Pedido cancelado", "La orden se canceló correctamente.");
       return updated;
     } catch (error) {
-      set({ error: (error as Error).message, isLoading: false });
+      const message = error instanceof Error ? error.message : "No se pudo cancelar la orden";
+      set({ error: message, isLoading: false });
+      showError("No se pudo cancelar la orden", message);
       throw error;
     }
   },
