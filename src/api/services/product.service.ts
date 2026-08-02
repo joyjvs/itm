@@ -3,16 +3,18 @@ import { ENDPOINTS } from "../endpoints";
 import type {
   Product,
   ProductsResponse,
+  ProductFilters,
 } from "../../types/product.types";
 
 export const productsService = {
   getAll: async (
-    //lters: ProductFilters = {},
     page: number = 1,
     limit: number = 10,
+    filters: ProductFilters = {},
   ): Promise<ProductsResponse> => {
+    const params = { page, limit, ...filters } as Record<string, any>;
     const response = await apiClient.get(ENDPOINTS.PRODUCTS.LIST, {
-      params: { page, limit },
+      params,
     });
 
     const data: Product[] = response.data?.data ?? [];

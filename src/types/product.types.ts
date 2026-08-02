@@ -37,6 +37,7 @@ export type UpdateProductPayload = Partial<CreateProductPayload>;
 export interface ProductFilters {
   search?: string;
   category?: string;
+  categoryId?: string;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: "name" | "price" | "createdAt";
