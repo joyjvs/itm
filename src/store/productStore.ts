@@ -51,15 +51,18 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
   filters: { ...defaultFilters },
 
-  fetchProducts: async (page = 1, limit = 10) => {
-    const { filters } = get();
+  fetchProducts: async (page?: number, limit?: number) => {
+    const { pagination } = get();
+    const targetPage = page ?? pagination.currentPage;
+    const targetLimit = limit ?? pagination.itemsPerPage;
+
     set({ isLoading: true, error: null });
 
     try {
       const response: ProductsResponse = await productsService.getAll(
         //filters,
-        page,
-        limit,
+        targetPage,
+        targetLimit,
       );
       set({
         products: response.data,

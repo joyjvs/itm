@@ -5,11 +5,22 @@ import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/useCategories";
 import MainLayout from "@/components/layout/MainLayout";
 import { Category } from "@/types/category.types";
-import { flattenCategoryTree } from "@/lib/category-utils";
+import { PaginationControls } from "@/components/common/PaginationControls";
 import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
 
 const CategoriesPage = () => {
-  const { tree, fetchTree, deleteCategory, isLoading } = useCategories();
+  const {
+    categories,
+    fetchAll,
+    deleteCategory,
+    isLoading,
+    currentPage,
+    itemsPerPage,
+    totalItems,
+    totalPages,
+    setPage,
+    setItemsPerPage,
+  } = useCategories();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
@@ -20,8 +31,8 @@ const CategoriesPage = () => {
   );
 
   useEffect(() => {
-    void fetchTree();
-  }, []);
+    void fetchAll();
+  }, [fetchAll]);
 
   const handleEdit = (category: Category) => {
     setSelectedCategory(category);
@@ -39,10 +50,7 @@ const CategoriesPage = () => {
     await deleteCategory(categoryIdToDelete);
     setDeleteDialogOpen(false);
     setCategoryIdToDelete(null);
-    await fetchTree();
   };
-
-  const flatCategories = flattenCategoryTree(tree);
 
   return (
     <MainLayout>
@@ -59,18 +67,30 @@ const CategoriesPage = () => {
           </Button>
         </div>
         <CategoryList
-          categories={flatCategories}
+          categories={categories}
           isLoading={isLoading}
           onEdit={handleEdit}
           onDelete={handleDeleteRequest}
         />
+
+        {categories.length > 0 && (
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages || 1}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
+            onPageChange={(page) => setPage(page)}
+            onItemsPerPageChange={(limit) => setItemsPerPage(limit)}
+          />
+        )}
+
         <CategoryModal
           open={modalOpen}
           onOpenChange={setModalOpen}
           category={selectedCategory}
           onSuccess={() => {
             setModalOpen(false);
-            void fetchTree();
+            void fetchAll();
           }}
         />
         <ConfirmAlertDialog

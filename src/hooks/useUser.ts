@@ -11,6 +11,8 @@ export const useUsers = () => {
     totalItems,
     totalPages,
     users,
+    setPage,
+    setItemsPerPage,
   } = userStore();
 
   return {
@@ -23,5 +25,7 @@ export const useUsers = () => {
     selectedUser,
     totalItems,
     totalPages,
+    setPage,
+    setItemsPerPage,
   };
 };

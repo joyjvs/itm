@@ -1,6 +1,7 @@
 import Loader from "../common/Loader";
 import { Edit2, Trash2 } from "lucide-react";
 import IconActionButton from "../common/IconActionButton";
+import { PaginationControls } from "../common/PaginationControls";
 import type { Task, TaskStatus, TaskPriority } from "../../types/task.types";
 
 interface TaskTableProps {
@@ -187,47 +188,15 @@ const TaskTable = ({
         </table>
       </div>
 
-      {/* Pagination Controls */}
-      <div className="flex items-center justify-between mt-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            Mostrar
-          </span>
-          <select
-            value={pagination.itemsPerPage}
-            onChange={(e) => onLimitChange(Number(e.target.value))}
-            className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            por página
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onPageChange(pagination.currentPage - 1)}
-            disabled={pagination.currentPage === 1}
-            className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
-            Anterior
-          </button>
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            Página {pagination.currentPage} de {pagination.totalPages || 1}
-          </span>
-          <button
-            onClick={() => onPageChange(pagination.currentPage + 1)}
-            disabled={pagination.currentPage === (pagination.totalPages || 1)}
-            className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
-            Siguiente
-          </button>
-        </div>
-      </div>
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages || 1}
+        itemsPerPage={pagination.itemsPerPage}
+        totalItems={pagination.totalItems}
+        onPageChange={onPageChange}
+        onItemsPerPageChange={onLimitChange}
+        pageSizeOptions={[5, 10, 20, 50]}
+      />
     </div>
   );
 };

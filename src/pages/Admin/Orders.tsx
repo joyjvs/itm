@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrders } from "@/hooks/useOrders";
+import { PaginationControls } from "@/components/common/PaginationControls";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,13 +31,24 @@ const statusLabels: Record<string, string> = {
 
 export const OrdersPageAdmin = () => {
   const { user } = useAuth();
-  const { orders, isLoading, error, fetchOrders } = useOrders();
+  const {
+    orders,
+    isLoading,
+    error,
+    fetchOrders,
+    currentPage,
+    itemsPerPage,
+    totalItems,
+    totalPages,
+    setPage,
+    setItemsPerPage,
+  } = useOrders();
 
   useEffect(() => {
     if (user?.id) {
       void fetchOrders(user.id, true);
     }
-  }, [user?.id]);
+  }, [user?.id, fetchOrders]);
 
   return (
     <MainLayout>
@@ -78,80 +90,93 @@ export const OrdersPageAdmin = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {orders.map((order) => {
-              const customerName =
-                order.user?.fullName ||
-                `${order.user?.firstName ?? ""} ${order.user?.lastName ?? ""}`.trim() ||
-                order.user?.email ||
-                "Cliente";
-              return (
-                <Card key={order.id} className="shadow-sm">
-                  <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                      <CardTitle className="text-lg font-semibold">
-                        Orden #{order.id}
-                      </CardTitle>
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mt-1">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {new Date(order.createdAt).toLocaleDateString(
-                            "es-ES",
-                          )}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Package className="w-4 h-4" />
-                          {order.items?.length ?? 0} productos
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Truck className="w-4 h-4" />
-                          {customerName}
-                        </span>
+          <>
+            <div className="space-y-4">
+              {orders.map((order) => {
+                const customerName =
+                  order.user?.fullName ||
+                  `${order.user?.firstName ?? ""} ${order.user?.lastName ?? ""}`.trim() ||
+                  order.user?.email ||
+                  "Cliente";
+                return (
+                  <Card key={order.id} className="shadow-sm">
+                    <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                      <div>
+                        <CardTitle className="text-lg font-semibold">
+                          Orden #{order.id}
+                        </CardTitle>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mt-1">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(order.createdAt).toLocaleDateString(
+                              "es-ES",
+                            )}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Package className="w-4 h-4" />
+                            {order.items?.length ?? 0} productos
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Truck className="w-4 h-4" />
+                            {customerName}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <Badge
-                      className={
-                        statusStyles[order.status] || statusStyles.pending
-                      }
-                    >
-                      {statusLabels[order.status] || statusLabels.pending}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        Cliente: {customerName}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Método de entrega:{" "}
-                        {order.deliveryMethod === "delivery"
-                          ? "Domicilio"
-                          : "Recogida"}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Dirección:{" "}
-                        {order.deliveryAddress || "Sin dirección registrada"}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">Total</p>
-                      <p className="text-xl font-semibold text-blue-600">
-                        ${Number(order.totalPrice ?? 0).toFixed(2)}
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        asChild
-                        className="mt-2"
+                      <Badge
+                        className={
+                          statusStyles[order.status] || statusStyles.pending
+                        }
                       >
-                        <Link to={`/order/${order.id}`}>Ver detalle</Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                        {statusLabels[order.status] || statusLabels.pending}
+                      </Badge>
+                    </CardHeader>
+                    <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          Cliente: {customerName}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Método de entrega:{" "}
+                          {order.deliveryMethod === "delivery"
+                            ? "Domicilio"
+                            : "Recogida"}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Dirección:{" "}
+                          {order.deliveryAddress || "Sin dirección registrada"}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">Total</p>
+                        <p className="text-xl font-semibold text-blue-600">
+                          ${Number(order.totalPrice ?? 0).toFixed(2)}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="mt-2"
+                        >
+                          <Link to={`/order/${order.id}`}>Ver detalle</Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {totalItems > 0 && (
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages || 1}
+                itemsPerPage={itemsPerPage}
+                totalItems={totalItems}
+                onPageChange={(page) => setPage(page)}
+                onItemsPerPageChange={(limit) => setItemsPerPage(limit)}
+              />
+            )}
+          </>
         )}
       </div>
     </MainLayout>

@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrders } from "@/hooks/useOrders";
+import { PaginationControls } from "@/components/common/PaginationControls";
 import type { Order } from "@/types/order.types";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,7 +74,18 @@ const MyOrdersPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { orders, isLoading, error, fetchOrders } = useOrders();
+  const {
+    orders,
+    isLoading,
+    error,
+    fetchOrders,
+    currentPage,
+    itemsPerPage,
+    totalItems,
+    totalPages,
+    setPage,
+    setItemsPerPage,
+  } = useOrders();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -133,77 +145,90 @@ const MyOrdersPage = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-6">
-            {orders.map((order: Order) => {
-              const statusInfo = getStatusInfo(order.status);
-              const totalAmount = Number(order.totalPrice ?? 0);
+          <>
+            <div className="space-y-6">
+              {orders.map((order: Order) => {
+                const statusInfo = getStatusInfo(order.status);
+                const totalAmount = Number(order.totalPrice ?? 0);
 
-              return (
-                <Card
-                  key={order.id}
-                  className="overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                      <CardTitle className="text-lg font-semibold">
-                        Orden #{order.id}
-                      </CardTitle>
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {new Date(order.createdAt).toLocaleDateString(
-                            "es-ES",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            },
-                          )}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Package className="w-4 h-4" />
-                          {order.items?.length ?? 0} productos
-                        </span>
+                return (
+                  <Card
+                    key={order.id}
+                    className="overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div>
+                        <CardTitle className="text-lg font-semibold">
+                          Orden #{order.id}
+                        </CardTitle>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(order.createdAt).toLocaleDateString(
+                              "es-ES",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              },
+                            )}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Package className="w-4 h-4" />
+                            {order.items?.length ?? 0} productos
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <Badge
-                      className={`flex items-center gap-1 px-3 py-1 text-sm ${statusInfo.className}`}
-                    >
-                      {statusInfo.icon}
-                      {statusInfo.label}
-                    </Badge>
-                  </CardHeader>
+                      <Badge
+                        className={`flex items-center gap-1 px-3 py-1 text-sm ${statusInfo.className}`}
+                      >
+                        {statusInfo.icon}
+                        {statusInfo.label}
+                      </Badge>
+                    </CardHeader>
 
-                  <CardContent>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="text-sm text-gray-600">
-                        <p className="font-medium text-gray-900">
-                          Método de entrega
-                        </p>
-                        <p>
-                          {order.deliveryMethod === "delivery"
-                            ? "Domicilio"
-                            : "Recogida"}
-                        </p>
+                    <CardContent>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="text-sm text-gray-600">
+                          <p className="font-medium text-gray-900">
+                            Método de entrega
+                          </p>
+                          <p>
+                            {order.deliveryMethod === "delivery"
+                              ? "Domicilio"
+                              : "Recogida"}
+                          </p>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          <p className="font-medium text-gray-900">Total</p>
+                          <p>${totalAmount.toFixed(2)}</p>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-600">
-                        <p className="font-medium text-gray-900">Total</p>
-                        <p>${totalAmount.toFixed(2)}</p>
-                      </div>
-                    </div>
-                  </CardContent>
+                    </CardContent>
 
-                  <CardFooter className="flex justify-end gap-3">
-                    <Link to={`/order/${order.id}`}>
-                      <Button variant="outline" size="sm">
-                        Ver detalle
-                      </Button>
-                    </Link>
-                  </CardFooter>
-                </Card>
-              );
-            })}
-          </div>
+                    <CardFooter className="flex justify-end gap-3">
+                      <Link to={`/order/${order.id}`}>
+                        <Button variant="outline" size="sm">
+                          Ver detalle
+                        </Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {totalItems > 0 && (
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages || 1}
+                itemsPerPage={itemsPerPage}
+                totalItems={totalItems}
+                onPageChange={(page) => setPage(page)}
+                onItemsPerPageChange={(limit) => setItemsPerPage(limit)}
+              />
+            )}
+          </>
         )}
       </div>
     </MainLayout>

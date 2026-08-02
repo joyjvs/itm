@@ -6,9 +6,18 @@ import { useProducts } from "@/hooks/useProducts";
 import MainLayout from "@/components/layout/MainLayout";
 import { Product } from "@/types/product.types";
 import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
+import { PaginationControls } from "@/components/common/PaginationControls";
 
 export const ProductsPage = () => {
-  const { products, fetchProducts, deleteProduct, isLoading } = useProducts();
+  const {
+    products,
+    fetchProducts,
+    deleteProduct,
+    isLoading,
+    pagination,
+    setPage,
+    setLimit,
+  } = useProducts();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -59,6 +68,15 @@ export const ProductsPage = () => {
           isLoading={isLoading}
           onEdit={handleEdit}
           onDelete={handleDeleteRequest}
+        />
+
+        <PaginationControls
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages || 1}
+          itemsPerPage={pagination.itemsPerPage}
+          totalItems={pagination.totalItems}
+          onPageChange={(page) => setPage(page)}
+          onItemsPerPageChange={(limit) => setLimit(limit)}
         />
 
         <ProductModal

@@ -61,7 +61,18 @@ export interface OrderStore {
   isLoading: boolean;
   error: string | null;
   selectedOrder: Order | null;
-  fetchOrders: (userId: string, isAdmin?: boolean) => Promise<void>;
+  currentPage: number;
+  itemsPerPage: number;
+  totalItems: number;
+  totalPages: number;
+  lastUserId: string | null;
+  lastIsAdmin: boolean;
+  fetchOrders: (
+    userId: string,
+    isAdmin?: boolean,
+    page?: number,
+    limit?: number,
+  ) => Promise<void>;
   fetchOrderById: (
     orderId: string,
     userId?: string,
@@ -69,6 +80,8 @@ export interface OrderStore {
   ) => Promise<Order | null>;
   createOrder: (payload: CreateOrderPayload, userId: string) => Promise<Order>;
   cancelOrder: (orderId: string, userId?: string) => Promise<Order>;
+  setPage: (page: number) => void;
+  setItemsPerPage: (limit: number) => void;
   clearError: () => void;
 }
 

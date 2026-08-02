@@ -1,6 +1,7 @@
 import axiosClient from "../client";
 import { ENDPOINTS } from "../endpoints";
-import { Order, CreateOrderPayload } from "../../types/order.types";
+import type { Order, CreateOrderPayload } from "../../types/order.types";
+import type { PaginatedResponse } from "@/types/pagination.types";
 
 const normalizeOrdersResponse = (payload: unknown): Order[] => {
   if (Array.isArray(payload)) return payload as Order[];
@@ -32,14 +33,33 @@ const normalizeSingleOrderResponse = (payload: unknown): Order | null => {
 };
 
 export const orderService = {
-  getOrders: async (userId: string, isAdmin = false): Promise<Order[]> => {
+  getOrders: async (
+    userId: string,
+    isAdmin = false,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedResponse<Order>> => {
     const response = await axiosClient.get(
       isAdmin ? ENDPOINTS.ORDERS.LIST : ENDPOINTS.ORDERS.MY_ORDERS(userId),
       {
-        params: { page: 1, limit: 100 },
+        params: { page, limit },
       },
     );
-    return normalizeOrdersResponse(response.data);
+
+    const rawData = normalizeOrdersResponse(response.data);
+    const pagination = response.data?.pagination || response.data?.meta || {};
+
+    return {
+      data: rawData,
+      meta: {
+        currentPage: pagination.page ?? page,
+        itemsPerPage: pagination.limit ?? limit,
+        totalItems: pagination.total ?? rawData.length,
+        totalPages: pagination.totalPages ?? 1,
+        hasNextPage: pagination.hasNext ?? false,
+        hasPrevPage: pagination.hasPrev ?? false,
+      },
+    };
   },
 
   getOrderById: async (

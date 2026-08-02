@@ -5,6 +5,7 @@ import type {
   CreateCategoryPayload,
   UpdateCategoryPayload,
 } from "../../types/category.types";
+import type { PaginatedResponse } from "@/types/pagination.types";
 import { buildCategoryTree } from "../../lib/category-utils";
 
 const normalizeCategory = (item: any): Category => ({
@@ -17,19 +18,33 @@ const normalizeCategory = (item: any): Category => ({
 });
 
 export const categoriesService = {
-  getAll: async (page = 1, limit = 100): Promise<Category[]> => {
+  getAll: async (
+    page = 1,
+    limit = 100,
+  ): Promise<PaginatedResponse<Category>> => {
     const response = await apiClient.get(ENDPOINTS.CATEGORIES.LIST, {
       params: { page, limit },
     });
 
     const rawData = response.data?.data ?? [];
+    const pagination = response.data?.pagination ?? {};
 
-    return rawData.map(normalizeCategory);
+    return {
+      data: rawData.map(normalizeCategory),
+      meta: {
+        currentPage: pagination.page ?? page,
+        itemsPerPage: pagination.limit ?? limit,
+        totalItems: pagination.total ?? rawData.length,
+        totalPages: pagination.totalPages ?? 1,
+        hasNextPage: pagination.hasNext ?? false,
+        hasPrevPage: pagination.hasPrev ?? false,
+      },
+    };
   },
 
   getTree: async (): Promise<Category[]> => {
     const list = await categoriesService.getAll(1, 100);
-    return buildCategoryTree(list);
+    return buildCategoryTree(list.data);
   },
 
   getById: async (id: string): Promise<Category> => {

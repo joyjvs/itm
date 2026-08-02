@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { PaginationControls } from "@/components/common/PaginationControls";
 import { useUsers } from "@/hooks/useUser";
 import { usersService } from "@/api/services/users.service";
 import { UserModal } from "@/components/user/UserModal";
@@ -16,7 +17,18 @@ import type { User } from "@/types/user.types";
 import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
 
 export const UsersPageAdmin = () => {
-  const { users, isLoading, error, fetchUsers } = useUsers();
+  const {
+    users,
+    isLoading,
+    error,
+    fetchUsers,
+    currentPage,
+    itemsPerPage,
+    totalItems,
+    totalPages,
+    setPage,
+    setItemsPerPage,
+  } = useUsers();
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -137,6 +149,17 @@ export const UsersPageAdmin = () => {
           user={selectedUser}
           onSuccess={fetchUsers}
         />
+
+        {users.length > 0 && (
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages || 1}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
+            onPageChange={(page) => setPage(page)}
+            onItemsPerPageChange={(limit) => setItemsPerPage(limit)}
+          />
+        )}
 
         <ConfirmAlertDialog
           open={deleteDialogOpen}
