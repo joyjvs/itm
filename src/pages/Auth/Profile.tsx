@@ -42,10 +42,7 @@ const ProfilePage = () => {
   const { user, isLoading, error, updateProfile, clearError } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-  } = useForm<ProfileFormValues>({
+  const { register, handleSubmit } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       firstName: user?.firstName || "",
@@ -62,7 +59,8 @@ const ProfilePage = () => {
       await updateProfile(user!.id, values);
       setIsEditing(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "No se pudo guardar el perfil";
+      const message =
+        error instanceof Error ? error.message : "No se pudo guardar el perfil";
       showError("No se pudo guardar el perfil", message);
       console.log(error);
     }
@@ -116,10 +114,7 @@ const ProfilePage = () => {
 
           <CardContent>
             {isEditing ? (
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <InputComponent
                   htmlForm="name-profile"
                   label="Nombre"

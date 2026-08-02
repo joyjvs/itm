@@ -71,9 +71,15 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
       await categoriesService.create(payload);
       await get().fetchTree();
       await get().fetchAll(get().currentPage, get().itemsPerPage);
-      showSuccess("Categoría creada", "La categoría se registró correctamente.");
+      showSuccess(
+        "Categoría creada",
+        "La categoría se registró correctamente.",
+      );
     } catch (error) {
-      const message = error instanceof Error ? error.message : "No se pudo crear la categoría";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "No se pudo crear la categoría";
       set({ error: message, isLoading: false });
       showError("No se pudo crear la categoría", message);
       throw error;
@@ -86,9 +92,15 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
       await categoriesService.update(id, payload);
       await get().fetchTree();
       await get().fetchAll(get().currentPage, get().itemsPerPage);
-      showSuccess("Categoría actualizada", "Los cambios se guardaron correctamente.");
+      showSuccess(
+        "Categoría actualizada",
+        "Los cambios se guardaron correctamente.",
+      );
     } catch (error) {
-      const message = error instanceof Error ? error.message : "No se pudo actualizar la categoría";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "No se pudo actualizar la categoría";
       set({ error: message, isLoading: false });
       showError("No se pudo actualizar la categoría", message);
       throw error;
@@ -101,9 +113,15 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
       await categoriesService.delete(id);
       await get().fetchTree();
       await get().fetchAll(get().currentPage, get().itemsPerPage);
-      showSuccess("Categoría eliminada", "La categoría se eliminó correctamente.");
+      showSuccess(
+        "Categoría eliminada",
+        "La categoría se eliminó correctamente.",
+      );
     } catch (error) {
-      const message = error instanceof Error ? error.message : "No se pudo eliminar la categoría";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar la categoría";
       set({ error: message, isLoading: false });
       showError("No se pudo eliminar la categoría", message);
       throw error;

@@ -73,7 +73,10 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
           lastName: updateUser.lastName,
           phone: updateUser.phone,
         });
-        showSuccess("Usuario actualizado", "Los cambios del usuario se guardaron correctamente.");
+        showSuccess(
+          "Usuario actualizado",
+          "Los cambios del usuario se guardaron correctamente.",
+        );
       } else {
         const createUser = data as RegisterFormData;
         await authRegister(
@@ -92,7 +95,12 @@ const RegisterForm = ({ onSuccess, user }: RegisterFormProps) => {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setSubmitError(message || "Error al registrarse");
-      showError(isEditing ? "No se pudo actualizar el usuario" : "No se pudo crear el usuario", message);
+      showError(
+        isEditing
+          ? "No se pudo actualizar el usuario"
+          : "No se pudo crear el usuario",
+        message,
+      );
     }
   };
 

@@ -31,7 +31,9 @@ const normalizeSingleOrderResponse = (payload: unknown): Order | null => {
 
   if ("data" in payload) {
     const data = (payload as { data?: unknown }).data;
-    return data && typeof data === "object" ? normalizeOrder((data as Order)) : null;
+    return data && typeof data === "object"
+      ? normalizeOrder(data as Order)
+      : null;
   }
 
   return normalizeOrder(payload as Order);
@@ -42,7 +44,9 @@ const normalizeOrder = (order: Order): Order => ({
   status: normalizeOrderStatus(order.status),
 });
 
-const normalizeOrderStatus = (status: string | undefined | null): BackendOrderStatus => {
+const normalizeOrderStatus = (
+  status: string | undefined | null,
+): BackendOrderStatus => {
   const normalized = status?.toLowerCase();
 
   switch (normalized) {
@@ -119,11 +123,17 @@ export const orderService = {
     return normalizeOrder(response.data as Order);
   },
 
-  updateOrderStatus: async (orderId: string, status: OrderStatus): Promise<Order> => {
+  updateOrderStatus: async (
+    orderId: string,
+    status: OrderStatus,
+  ): Promise<Order> => {
     const normalizedStatus = normalizeOrderStatus(status);
-    const response = await axiosClient.patch(ENDPOINTS.ORDERS.UPDATE_STATUS(orderId), {
-      status: normalizedStatus,
-    });
+    const response = await axiosClient.patch(
+      ENDPOINTS.ORDERS.UPDATE_STATUS(orderId),
+      {
+        status: normalizedStatus,
+      },
+    );
     return normalizeOrder(response.data as Order);
   },
 

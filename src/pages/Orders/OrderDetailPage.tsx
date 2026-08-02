@@ -49,9 +49,9 @@ const OrderDetailPage = () => {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const isAdmin = Boolean(
     user?.role?.toLowerCase().includes("admin") ||
-      user?.roles?.some((role: { name?: string }) =>
-        role.name?.toLowerCase().includes("admin"),
-      ),
+    user?.roles?.some((role: { name?: string }) =>
+      role.name?.toLowerCase().includes("admin"),
+    ),
   );
 
   useEffect(() => {
@@ -73,7 +73,10 @@ const OrderDetailPage = () => {
       await fetchOrderById(selectedOrder.id, user?.id, isAdmin);
       setCancelDialogOpen(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "No se pudo cancelar el pedido";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "No se pudo cancelar el pedido";
       showError("No se pudo cancelar el pedido", message);
       console.log(error);
     } finally {
@@ -117,7 +120,8 @@ const OrderDetailPage = () => {
     "Cliente";
   const normalizedStatus = (order.status || "pending").toLowerCase();
   const canCancel =
-    !isAdmin && ["pending", "confirmed", "processing"].includes(normalizedStatus);
+    !isAdmin &&
+    ["pending", "confirmed", "processing"].includes(normalizedStatus);
 
   return (
     <MainLayout>

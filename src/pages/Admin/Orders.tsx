@@ -162,7 +162,9 @@ export const OrdersPageAdmin = () => {
                           ${Number(order.totalPrice ?? 0).toFixed(2)}
                         </p>
                         <div className="mt-2 flex flex-col items-end gap-2">
-                          <label className="text-xs text-gray-500">Estado</label>
+                          <label className="text-xs text-gray-500">
+                            Estado
+                          </label>
                           <select
                             className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm"
                             value={order.status}
@@ -176,7 +178,9 @@ export const OrdersPageAdmin = () => {
                             <option value="pending">Pendiente</option>
                             <option value="confirmed">Confirmado</option>
                             <option value="preparing">Preparando</option>
-                            <option value="ready_for_pickup">Listo para recoger</option>
+                            <option value="ready_for_pickup">
+                              Listo para recoger
+                            </option>
                             <option value="shipped">Enviado</option>
                             <option value="delivered">Entregado</option>
                             <option value="cancelled">Cancelado</option>

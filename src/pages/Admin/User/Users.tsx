@@ -55,7 +55,8 @@ export const UsersPageAdmin = () => {
       await fetchUsers();
       showSuccess("Usuario eliminado", "El usuario se eliminó correctamente.");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "No se pudo eliminar el usuario";
+      const message =
+        err instanceof Error ? err.message : "No se pudo eliminar el usuario";
       showError("No se pudo eliminar el usuario", message);
       console.error("No se pudo eliminar el usuario", err);
     } finally {

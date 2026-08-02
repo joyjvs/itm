@@ -19,13 +19,17 @@ interface AuthState {
     firstName: string,
     lastName: string,
     address: string,
-    phone:string
+    phone: string,
   ) => Promise<void>;
   logout: () => void;
   clearError: () => void;
   setUser: (user: User | null) => void;
-  changePassword: (userid: string, currentPassword: string, newPassword: string) => void;
-  updateProfile: (userid:string, data: Partial<User>) => Promise<void>;
+  changePassword: (
+    userid: string,
+    currentPassword: string,
+    newPassword: string,
+  ) => void;
+  updateProfile: (userid: string, data: Partial<User>) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -80,9 +84,13 @@ export const useAuthStore = create<AuthState>()(
           set({
             isLoading: false,
           });
-          showSuccess("Usuario creado", "El usuario se registró correctamente.");
+          showSuccess(
+            "Usuario creado",
+            "El usuario se registró correctamente.",
+          );
         } catch (error: unknown) {
-          const message = error instanceof Error ? error.message : "Error al registrarse";
+          const message =
+            error instanceof Error ? error.message : "Error al registrarse";
           set({
             error: message,
             isLoading: false,
@@ -116,14 +124,20 @@ export const useAuthStore = create<AuthState>()(
           throw error;
         }
       },
-      updateProfile: async (userId: string,data: Partial<User>) => {
+      updateProfile: async (userId: string, data: Partial<User>) => {
         set({ isLoading: true, error: null });
         try {
-          const updatedUser = await authService.updateProfile(userId,data);
+          const updatedUser = await authService.updateProfile(userId, data);
           set({ user: updatedUser, isLoading: false });
-          showSuccess("Perfil actualizado", "Tus datos se guardaron correctamente.");
+          showSuccess(
+            "Perfil actualizado",
+            "Tus datos se guardaron correctamente.",
+          );
         } catch (error) {
-          const message = error instanceof Error ? error.message : "No se pudo actualizar el perfil";
+          const message =
+            error instanceof Error
+              ? error.message
+              : "No se pudo actualizar el perfil";
           set({ error: message, isLoading: false });
           showError("No se pudo actualizar el perfil", message);
           throw error;

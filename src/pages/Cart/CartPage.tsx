@@ -89,7 +89,8 @@ const CartPage = () => {
       clearCart();
       navigate(`/order/${order.id}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "No se pudo crear la orden";
+      const message =
+        error instanceof Error ? error.message : "No se pudo crear la orden";
       showError("No se pudo crear la orden", message);
       console.error("Error creando orden", error);
     } finally {

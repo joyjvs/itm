@@ -100,7 +100,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
       await get().fetchProducts(1, get().pagination.itemsPerPage);
       showSuccess("Producto creado", "El producto se registró correctamente.");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al crear producto";
+      const message =
+        error instanceof Error ? error.message : "Error al crear producto";
       set({
         error: message,
         isLoading: false,
@@ -118,9 +119,13 @@ export const useProductStore = create<ProductState>((set, get) => ({
         get().pagination.currentPage,
         get().pagination.itemsPerPage,
       );
-      showSuccess("Producto actualizado", "Los cambios se guardaron correctamente.");
+      showSuccess(
+        "Producto actualizado",
+        "Los cambios se guardaron correctamente.",
+      );
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al actualizar producto";
+      const message =
+        error instanceof Error ? error.message : "Error al actualizar producto";
       set({
         error: message,
         isLoading: false,
@@ -138,9 +143,13 @@ export const useProductStore = create<ProductState>((set, get) => ({
         get().pagination.currentPage,
         get().pagination.itemsPerPage,
       );
-      showSuccess("Producto eliminado", "El producto se eliminó correctamente.");
+      showSuccess(
+        "Producto eliminado",
+        "El producto se eliminó correctamente.",
+      );
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al eliminar producto";
+      const message =
+        error instanceof Error ? error.message : "Error al eliminar producto";
       set({
         error: message,
         isLoading: false,
