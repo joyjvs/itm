@@ -4,15 +4,15 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuShortcut,
-  DropdownMenuSeparator,
+  // DropdownMenuShortcut,
+  // DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export const AdminMenuComponent = () => {
   const navigate = useNavigate();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   if (!isAuthenticated || !user?.role?.includes("admin")) {
     return null;
@@ -31,28 +31,19 @@ export const AdminMenuComponent = () => {
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => navigate("/users-admin")}>
             Usuarios
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate("/categories-admin")}>
             Categorías
-            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+            {/* <DropdownMenuShortcut>⌘B</DropdownMenuShortcut> */}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate("/products-admin")}>
             Productos
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+            {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate("/orders-admin")}>
             Ordenes
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => logout()}>
-            Salir
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

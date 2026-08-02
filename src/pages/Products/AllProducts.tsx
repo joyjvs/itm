@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/features/Product/ProductCard";
 import { ProductFilters } from "@/components/forms/Admin/Productos/ProductFilters";
 import { useProducts } from "@/hooks/useProducts";
 import { PaginationControls } from "@/components/common/PaginationControls";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
 const AllProducts = () => {
   const { products, fetchProducts, isLoading, pagination, setPage, setLimit } =
@@ -21,7 +22,13 @@ const AllProducts = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-20">Cargando productos...</div>
+          <div className="py-8">
+            <DataStateSkeleton
+              variant="cards"
+              count={8}
+              className="mx-auto max-w-7xl"
+            />
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

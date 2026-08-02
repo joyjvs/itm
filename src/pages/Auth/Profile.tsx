@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import InputComponent from "@/components/common/InputComponent";
 import { showError } from "@/utils/toast";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
 // Esquema de validación para editar perfil
 const profileSchema = z.object({
@@ -80,8 +81,29 @@ const ProfilePage = () => {
   if (!user) {
     return (
       <MainLayout>
-        <div className="container mx-auto px-4 py-12 text-center">
-          <p className="text-gray-500">Cargando perfil...</p>
+        <div className="container mx-auto px-4 py-12 max-w-3xl">
+          <Card className="shadow-md">
+            <CardHeader>
+              <div className="space-y-2">
+                <DataStateSkeleton
+                  variant="list"
+                  count={2}
+                  className="max-w-md"
+                  itemClassName="border-0 shadow-none p-0"
+                />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <DataStateSkeleton
+                  variant="list"
+                  count={4}
+                  className="max-w-2xl"
+                  itemClassName="border-0 shadow-none p-0"
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </MainLayout>
     );

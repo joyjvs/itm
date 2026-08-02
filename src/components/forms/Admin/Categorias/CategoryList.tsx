@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2 } from "lucide-react";
 import { Category } from "@/types/category.types";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
 interface CategoryListProps {
   categories: Category[];
@@ -24,7 +25,8 @@ export const CategoryList = ({
   onEdit,
   onDelete,
 }: CategoryListProps) => {
-  if (isLoading) return <div>Cargando categorías...</div>;
+  if (isLoading)
+    return <DataStateSkeleton variant="table" count={6} className="py-4" />;
 
   return (
     <Table>

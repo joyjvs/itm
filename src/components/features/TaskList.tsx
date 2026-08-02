@@ -1,7 +1,7 @@
-import TaskCard from './TaskCard';
-import Loader from '../common/Loader';
-import Alert from '../common/Alert';
-import type { Task } from '../../types/task.types';
+import TaskCard from "./TaskCard";
+import Alert from "../common/Alert";
+import { DataStateSkeleton } from "../common/DataStateSkeleton";
+import type { Task } from "../../types/task.types";
 
 interface TaskListProps {
   tasks: Task[];
@@ -18,18 +18,14 @@ const TaskList = ({
   error,
   onEdit,
   onDelete,
-  emptyMessage = 'No hay tareas por mostrar',
+  emptyMessage = "No hay tareas por mostrar",
 }: TaskListProps) => {
   if (isLoading) {
-    return <Loader message="Cargando tareas..." />;
+    return <DataStateSkeleton variant="list" count={4} className="py-2" />;
   }
 
   if (error) {
-    return (
-      <Alert variant="destructive">
-        {error}
-      </Alert>
-    );
+    return <Alert variant="destructive">{error}</Alert>;
   }
 
   if (tasks.length === 0) {
@@ -43,7 +39,12 @@ const TaskList = ({
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} />
+        <TaskCard
+          key={task.id}
+          task={task}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       ))}
     </div>
   );

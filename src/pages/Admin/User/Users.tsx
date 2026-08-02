@@ -16,6 +16,7 @@ import { UserModal } from "@/components/user/UserModal";
 import type { User } from "@/types/user.types";
 import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
 import { showError, showSuccess } from "@/utils/toast";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
 export const UsersPageAdmin = () => {
   const {
@@ -90,8 +91,8 @@ export const UsersPageAdmin = () => {
         </div>
 
         {isLoading ? (
-          <div className="rounded-md border p-4 text-sm text-muted-foreground">
-            Cargando usuarios...
+          <div className="rounded-md border border-slate-200 bg-white p-4">
+            <DataStateSkeleton variant="table" count={6} className="py-2" />
           </div>
         ) : error ? (
           <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">

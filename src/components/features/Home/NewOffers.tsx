@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { productsService } from "@/api/services/product.service";
 import type { Product } from "@/types/product.types";
-import Loader from "@/components/common/Loader";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
 const MAX_PRODUCTS = 10;
 
@@ -108,8 +108,12 @@ export default function NewOffers() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16">
-          <Loader message="Cargando ofertas..." />
+        <div className="py-8">
+          <DataStateSkeleton
+            variant="cards"
+            count={4}
+            className="mx-auto max-w-6xl"
+          />
         </div>
       ) : error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">

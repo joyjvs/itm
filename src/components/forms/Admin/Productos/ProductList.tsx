@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2 } from "lucide-react";
 import { Product } from "@/types/product.types";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
 interface ProductListProps {
   products: Product[];
@@ -30,7 +31,8 @@ export const ProductList = ({
   onEdit,
   onDelete,
 }: ProductListProps) => {
-  if (isLoading) return <div>Cargando productos...</div>;
+  if (isLoading)
+    return <DataStateSkeleton variant="table" count={6} className="py-4" />;
 
   return (
     <Table>

@@ -7,7 +7,8 @@ import { PaginationControls } from "@/components/common/PaginationControls";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Loader2, Package, ShoppingBag, Truck } from "lucide-react";
+import { Calendar, Package, ShoppingBag, Truck } from "lucide-react";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 import type { OrderStatus } from "@/types/order.types";
 
 const statusStyles: Record<string, string> = {
@@ -77,9 +78,8 @@ export const OrdersPageAdmin = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-            <span className="ml-2 text-gray-600">Cargando órdenes...</span>
+          <div className="py-6">
+            <DataStateSkeleton variant="list" count={5} className="max-w-6xl" />
           </div>
         ) : error ? (
           <div className="text-center py-12">

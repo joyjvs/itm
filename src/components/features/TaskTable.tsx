@@ -1,7 +1,7 @@
-import Loader from "../common/Loader";
 import { Edit2, Trash2 } from "lucide-react";
 import IconActionButton from "../common/IconActionButton";
 import { PaginationControls } from "../common/PaginationControls";
+import { DataStateSkeleton } from "../common/DataStateSkeleton";
 import type { Task, TaskStatus, TaskPriority } from "../../types/task.types";
 
 interface TaskTableProps {
@@ -41,7 +41,7 @@ const TaskTable = ({
   canChangePriority = () => true,
 }: TaskTableProps) => {
   if (isLoading) {
-    return <Loader message="Cargando tareas..." />;
+    return <DataStateSkeleton variant="table" count={5} className="py-4" />;
   }
 
   if (tasks.length === 0) {

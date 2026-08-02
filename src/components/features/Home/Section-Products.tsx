@@ -12,6 +12,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
 const getItemsPerSlide = (width: number) => {
   if (width >= 1280) return 4;
@@ -164,7 +165,13 @@ const SectionProducts = () => {
       </div>
 
       {isLoading && (
-        <div className="text-center text-gray-600">Cargando categorías...</div>
+        <div className="py-8">
+          <DataStateSkeleton
+            variant="cards"
+            count={4}
+            className="mx-auto max-w-6xl"
+          />
+        </div>
       )}
 
       {!isLoading && errorMessage && (

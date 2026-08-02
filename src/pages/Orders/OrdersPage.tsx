@@ -23,6 +23,7 @@ import {
   Clock,
   ShoppingBag,
 } from "lucide-react";
+import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
 const OrdersPage = () => {
   const { user } = useAuth();
@@ -99,9 +100,8 @@ const OrdersPage = () => {
         </h1>
 
         {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-            <span className="ml-2 text-gray-600">Cargando órdenes...</span>
+          <div className="py-6">
+            <DataStateSkeleton variant="list" count={4} className="max-w-5xl" />
           </div>
         ) : error ? (
           <div className="text-center py-12">

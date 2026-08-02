@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
+  //DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
@@ -33,15 +33,15 @@ const AccountComponent = () => {
               <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => navigate("/profile")}>
                 Perfil
-                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate(`/me/orders/${user?.id}`)}>
                 Mis pedidos
-                <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⌘B</DropdownMenuShortcut> */}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/change-password")}>
                 Cambiar Contraseña
-                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
@@ -50,7 +50,7 @@ const AccountComponent = () => {
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => logout()}>
                 Salir
-                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut> */}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </>
