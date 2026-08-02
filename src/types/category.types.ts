@@ -1,3 +1,5 @@
+import type { Product } from "./product.types";
+
 export interface Category {
   id: string;
   name: string;
@@ -8,6 +10,7 @@ export interface Category {
     name?: string;
   } | null;
   children?: Category[];
+  products?: Product[];
 }
 
 export type CreateCategoryPayload = Pick<

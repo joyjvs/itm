@@ -5,53 +5,132 @@ import type { Category } from "@/types/category.types";
 import type { Product } from "@/types/product.types";
 import { ProductCard } from "../Product/ProductCard";
 import { categoriesService } from "@/api/services/categories.service";
-import { productsService } from "@/api/services/product.service";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
-const PAGE_SIZE = 10;
+const getItemsPerSlide = (width: number) => {
+  if (width >= 1280) return 4;
+  if (width >= 768) return 3;
+  if (width >= 640) return 2;
+  return 1;
+};
+
+const chunkItems = <T,>(items: T[], chunkSize: number): T[][] => {
+  if (chunkSize <= 0) return [items];
+
+  const chunks: T[][] = [];
+  for (let index = 0; index < items.length; index += chunkSize) {
+    chunks.push(items.slice(index, index + chunkSize));
+  }
+
+  return chunks;
+};
+
+const getGridColsClass = (itemsPerSlide: number) => {
+  switch (itemsPerSlide) {
+    case 4:
+      return "grid-cols-4";
+    case 3:
+      return "grid-cols-3";
+    case 2:
+      return "grid-cols-2";
+    default:
+      return "grid-cols-1";
+  }
+};
+
+type ProductsCarouselProps = {
+  products: Product[];
+};
+
+const ProductsCarousel = ({ products }: ProductsCarouselProps) => {
+  const [itemsPerSlide, setItemsPerSlide] = useState(1);
+
+  useEffect(() => {
+    const updateItemsPerSlide = () => {
+      setItemsPerSlide(getItemsPerSlide(window.innerWidth));
+    };
+
+    updateItemsPerSlide();
+    window.addEventListener("resize", updateItemsPerSlide);
+
+    return () => {
+      window.removeEventListener("resize", updateItemsPerSlide);
+    };
+  }, []);
+
+  const slides = useMemo(
+    () => chunkItems(products, itemsPerSlide),
+    [products, itemsPerSlide],
+  );
+
+  const gridColsClass = useMemo(
+    () => getGridColsClass(itemsPerSlide),
+    [itemsPerSlide],
+  );
+
+  if (products.length === 0) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-700">
+        No hay productos disponibles para esta categoría.
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <Carousel className="w-full">
+        <CarouselContent>
+          {slides.map((slideProducts, slideIndex) => (
+            <CarouselItem key={`slide-${slideIndex}`} className="basis-full">
+              <div className={`grid gap-6 ${gridColsClass}`}>
+                {slideProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    description={product.description}
+                    price={product.price}
+                    image={product.image ?? product.images?.[0] ?? ""}
+                    stock={product.stock}
+                  />
+                ))}
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="left-4" />
+        <CarouselNext className="right-4" />
+      </Carousel>
+    </div>
+  );
+};
 
 const SectionProducts = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [categoryPages, setCategoryPages] = useState<Record<string, number>>(
-    {},
-  );
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const productsByCategory = useMemo(() => {
-    const grouped: Record<string, Product[]> = {};
-
-    categories.forEach((category) => {
-      grouped[category.id] = allProducts.filter((product) =>
-        matchesCategory(product, category),
-      );
-    });
-
-    return grouped;
-  }, [allProducts, categories]);
+  const allProducts = useMemo(() => {
+    return categories.flatMap((category) => category.products ?? []);
+  }, [categories]);
 
   const fetchCategoriesAndProducts = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage(null);
 
     try {
-      const [categoryResponse, productResponse] = await Promise.all([
-        categoriesService.getAll(1, 100),
-        productsService.getAll(1, 100),
-      ]);
-
+      const categoryResponse = await categoriesService.getAll(1, 100);
       const nextCategories = categoryResponse.data ?? [];
-      const nextProducts = productResponse.data ?? [];
 
       setCategories(nextCategories);
-      setAllProducts(nextProducts);
-      setCategoryPages(
-        Object.fromEntries(nextCategories.map((category) => [category.id, 1])),
-      );
     } catch {
       setCategories([]);
-      setAllProducts([]);
-      setCategoryPages({});
       setErrorMessage("No se pudieron cargar las categorías en este momento.");
     } finally {
       setIsLoading(false);
@@ -75,17 +154,6 @@ const SectionProducts = () => {
       isActive = false;
     };
   }, [fetchCategoriesAndProducts]);
-
-  const handlePageChange = (category: Category, newPage: number) => {
-    const categoryProducts = productsByCategory[category.id] ?? [];
-    const totalPages = Math.max(
-      1,
-      Math.ceil(categoryProducts.length / PAGE_SIZE),
-    );
-    const nextPage = Math.min(Math.max(1, newPage), totalPages);
-
-    setCategoryPages((prev) => ({ ...prev, [category.id]: nextPage }));
-  };
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -130,120 +198,17 @@ const SectionProducts = () => {
           </TabsList>
 
           <TabsContent value="todos" className="mt-0">
-            {allProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {allProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    description={product.description}
-                    price={product.price}
-                    image={product.image ?? product.images?.[0] ?? ""}
-                    stock={product.stock}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-gray-600">
-                No hay productos disponibles para mostrar.
-              </div>
-            )}
+            <ProductsCarousel products={allProducts} />
           </TabsContent>
 
-          {categories.map((category) => {
-            const items = productsByCategory[category.id] ?? [];
-            const page = categoryPages[category.id] ?? 1;
-            const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
-            const startIndex = (page - 1) * PAGE_SIZE;
-            const visibleItems = items.slice(
-              startIndex,
-              startIndex + PAGE_SIZE,
-            );
-
-            return (
-              <TabsContent
-                key={category.id}
-                value={category.id}
-                className="mt-0"
-              >
-                {visibleItems.length > 0 ? (
-                  <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                      {visibleItems.map((product) => (
-                        <ProductCard
-                          key={product.id}
-                          id={product.id}
-                          name={product.name}
-                          description={product.description}
-                          price={product.price}
-                          image={product.image ?? product.images?.[0] ?? ""}
-                          stock={product.stock}
-                        />
-                      ))}
-                    </div>
-
-                    {totalPages > 1 && (
-                      <div className="flex justify-center items-center gap-4 mt-6">
-                        <button
-                          aria-label={`Anterior ${category.name}`}
-                          onClick={() => handlePageChange(category, page - 1)}
-                          disabled={page <= 1}
-                          className="px-3 py-1 rounded border bg-white text-sm disabled:opacity-50"
-                        >
-                          Anterior
-                        </button>
-
-                        <div className="text-sm text-gray-700">
-                          Página {page} / {totalPages}
-                        </div>
-
-                        <button
-                          aria-label={`Siguiente ${category.name}`}
-                          onClick={() => handlePageChange(category, page + 1)}
-                          disabled={page >= totalPages}
-                          className="px-3 py-1 rounded border bg-white text-sm disabled:opacity-50"
-                        >
-                          Siguiente
-                        </button>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-center text-gray-600">
-                    No hay productos disponibles para esta categoría.
-                  </div>
-                )}
-              </TabsContent>
-            );
-          })}
+          {categories.map((category) => (
+            <TabsContent key={category.id} value={category.id} className="mt-0">
+              <ProductsCarousel products={category.products ?? []} />
+            </TabsContent>
+          ))}
         </Tabs>
       )}
     </div>
-  );
-};
-
-const matchesCategory = (product: Product, category: Category) => {
-  const categoryId = category.id?.toLowerCase();
-  const categoryName = category.name?.toLowerCase();
-
-  const productCategoryId =
-    typeof product.category === "object" && product.category !== null
-      ? product.category.id?.toLowerCase()
-      : undefined;
-
-  const productCategoryName =
-    typeof product.category === "string"
-      ? product.category.toLowerCase()
-      : typeof product.category === "object" && product.category !== null
-        ? product.category.name?.toLowerCase()
-        : undefined;
-
-  return (
-    product.categoryId?.toLowerCase() === categoryId ||
-    productCategoryId === categoryId ||
-    productCategoryName === categoryName ||
-    productCategoryName === categoryId
   );
 };
 

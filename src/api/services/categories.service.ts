@@ -7,14 +7,56 @@ import type {
 } from "../../types/category.types";
 import type { PaginatedResponse } from "@/types/pagination.types";
 import { buildCategoryTree } from "../../lib/category-utils";
+import type { Product } from "../../types/product.types";
 
-const normalizeCategory = (item: any): Category => ({
+type CategoryApiProduct = {
+  id?: string;
+  name?: string;
+  description?: string;
+  price?: number | string;
+  stock?: number | string;
+  categoryId?: string;
+  category?: unknown;
+  images?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+type CategoryApiResponse = {
+  id?: string;
+  name?: string;
+  description?: string;
+  parent?: { id?: string; name?: string } | null;
+  children?: CategoryApiResponse[];
+  products?: CategoryApiProduct[];
+  [key: string]: unknown;
+};
+
+const normalizeProduct = (product?: CategoryApiProduct | null): Product => ({
+  id: product.id,
+  name: product.name,
+  description: product.description,
+  price: Number(product.price ?? 0),
+  stock: Number(product.stock ?? 0),
+  categoryId: product.categoryId ?? "",
+  category: product.category,
+  images: Array.isArray(product.images) ? product.images : [],
+  image:
+    Array.isArray(product.images) && product.images.length > 0
+      ? product.images[0]
+      : undefined,
+  createdAt: product.createdAt ?? new Date().toISOString(),
+  updatedAt: product.updatedAt ?? new Date().toISOString(),
+});
+
+const normalizeCategory = (item: CategoryApiResponse): Category => ({
   id: item.id,
   name: item.name,
   description: item.description,
   parentId: item.parent?.id ?? null,
   parent: item.parent ? { id: item.parent.id, name: item.parent.name } : null,
   children: (item.children ?? []).map(normalizeCategory),
+  products: (item.products ?? []).map(normalizeProduct),
 });
 
 export const categoriesService = {
