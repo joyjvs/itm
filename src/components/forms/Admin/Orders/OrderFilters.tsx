@@ -155,8 +155,9 @@ export const OrderFilters = ({
           name="status"
           control={form.control}
           render={({ field }) => {
-            const selectedStatusLabel =
-              statusOptions.find((item) => item.value === field.value)?.label;
+            const selectedStatusLabel = statusOptions.find(
+              (item) => item.value === field.value,
+            )?.label;
 
             return (
               <Field>
@@ -192,9 +193,9 @@ export const OrderFilters = ({
           name="deliveryMethod"
           control={form.control}
           render={({ field }) => {
-            const selectedDeliveryMethodLabel =
-              deliveryMethodOptions.find((item) => item.value === field.value)
-                ?.label;
+            const selectedDeliveryMethodLabel = deliveryMethodOptions.find(
+              (item) => item.value === field.value,
+            )?.label;
 
             return (
               <Field>
