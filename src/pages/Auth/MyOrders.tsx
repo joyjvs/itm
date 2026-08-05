@@ -4,7 +4,11 @@ import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrders } from "@/hooks/useOrders";
 import { PaginationControls } from "@/components/common/PaginationControls";
-import type { Order } from "@/types/order.types";
+import { OrderFilters } from "@/components/forms/Admin/Orders/OrderFilters";
+import type {
+  Order,
+  OrderFilters as OrderFiltersType,
+} from "@/types/order.types";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -91,6 +95,9 @@ const MyOrdersPage = () => {
     totalPages,
     setPage,
     setItemsPerPage,
+    filters,
+    setFilters,
+    clearFilters,
   } = useOrders();
 
   useEffect(() => {
@@ -101,8 +108,20 @@ const MyOrdersPage = () => {
       return;
     }
 
-    void fetchOrders(user.id);
-  }, [id, user?.id, fetchOrders, navigate]);
+    void fetchOrders(user.id, false, 1, itemsPerPage);
+  }, [id, user?.id, fetchOrders, navigate, itemsPerPage]);
+
+  const handleFilterSubmit = (appliedFilters: OrderFiltersType) => {
+    if (!user?.id) return;
+    setFilters(appliedFilters);
+    void fetchOrders(user.id, false, 1, itemsPerPage, appliedFilters);
+  };
+
+  const handleFilterClear = () => {
+    if (!user?.id) return;
+    clearFilters();
+    void fetchOrders(user.id, false, 1, itemsPerPage);
+  };
 
   return (
     <MainLayout>
@@ -120,6 +139,14 @@ const MyOrdersPage = () => {
           <Button onClick={() => navigate("/profile")}>
             Volver a mi perfil
           </Button>
+        </div>
+
+        <div className="mb-8">
+          <OrderFilters
+            defaultValues={filters}
+            onSubmit={handleFilterSubmit}
+            onClear={handleFilterClear}
+          />
         </div>
 
         {isLoading ? (

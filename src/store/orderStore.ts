@@ -29,7 +29,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
     limit = 10,
     filters,
   ) => {
-    const nextFilters = isAdmin ? (filters ?? get().filters) : undefined;
+    const nextFilters = filters ?? get().filters;
     set({
       isLoading: true,
       error: null,

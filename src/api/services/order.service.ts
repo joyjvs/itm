@@ -81,7 +81,7 @@ export const orderService = {
     const params = {
       page,
       limit,
-      ...(isAdmin ? filters : {}),
+      ...(filters ?? {}),
     };
 
     const queryParams = Object.fromEntries(
