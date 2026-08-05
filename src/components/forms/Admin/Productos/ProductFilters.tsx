@@ -102,9 +102,9 @@ export const ProductFilters = () => {
     form.reset({
       search: "",
       categoryId: "", // ✅ String vacío, no undefined
-      minPrice: undefined,
-      maxPrice: undefined,
-    });
+      minPrice: "",
+      maxPrice: "",
+    } as unknown as FilterFormValues);
 
     // ✅ Forzar el reset del Controller explícitamente
     form.setValue("categoryId", "", { shouldValidate: false });
