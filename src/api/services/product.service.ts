@@ -13,8 +13,14 @@ export const productsService = {
     filters: ProductFilters = {},
   ): Promise<ProductsResponse> => {
     const params = { page, limit, ...filters } as Record<string, any>;
+    const cleanedParams = Object.fromEntries(
+      Object.entries(params).filter(
+        ([_, value]) => value !== undefined && value !== "" && value !== null,
+      ),
+    );
+
     const response = await apiClient.get(ENDPOINTS.PRODUCTS.LIST, {
-      params,
+      params: cleanedParams,
     });
 
     const data: Product[] = response.data?.data ?? [];

@@ -30,11 +30,11 @@ interface ProductState {
 
 const defaultFilters: ProductFilters = {
   search: "",
-  category: "",
+  categoryId: undefined,
   minPrice: undefined,
   maxPrice: undefined,
-  sortBy: "createdAt",
-  sortOrder: "desc",
+  //sortBy: "createdAt",
+  //sortOrder: "desc",
 };
 
 export const useProductStore = create<ProductState>((set, get) => ({
@@ -53,7 +53,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
   filters: { ...defaultFilters },
 
   fetchProducts: async (page?: number, limit?: number) => {
-    const { pagination } = get();
+    const { pagination, filters } = get();
     const targetPage = page ?? pagination.currentPage;
     const targetLimit = limit ?? pagination.itemsPerPage;
 
@@ -61,9 +61,9 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
     try {
       const response: ProductsResponse = await productsService.getAll(
-        //filters,
         targetPage,
         targetLimit,
+        filters,
       );
       set({
         products: response.data,
@@ -160,10 +160,24 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   setFilters: (newFilters: Partial<ProductFilters>) => {
-    set((state) => ({
-      filters: { ...state.filters, ...newFilters },
-      pagination: { ...state.pagination, currentPage: 1 },
-    }));
+    set((state) => {
+      const mergedFilters: ProductFilters = {
+        ...state.filters,
+        ...newFilters,
+      };
+
+      const cleanedFilters = Object.fromEntries(
+        Object.entries(mergedFilters).filter(
+          ([_, value]) => value !== undefined && value !== "",
+        ),
+      ) as ProductFilters;
+
+      return {
+        filters: cleanedFilters,
+        pagination: { ...state.pagination, currentPage: 1 },
+      };
+    });
+
     const { pagination } = get();
     get().fetchProducts(pagination.currentPage, pagination.itemsPerPage);
   },
