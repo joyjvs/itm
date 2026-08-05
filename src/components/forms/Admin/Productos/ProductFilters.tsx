@@ -1,4 +1,3 @@
-// src/components/products/ProductFilters.tsx
 import { useEffect } from "react";
 import { Controller, type Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +21,7 @@ import { flattenCategoryTree } from "@/lib/category-utils";
 
 const filterSchema = z.object({
   search: z.string().optional(),
-  categoryId: z.string().optional(),
+  categoryId: z.string().optional(), // ✅ Debe ser string
   minPrice: z.preprocess(
     (value) =>
       value === "" || value === null || value === undefined
@@ -57,7 +56,8 @@ export const ProductFilters = () => {
     resolver: zodResolver(filterSchema) as Resolver<FilterFormValues>,
     defaultValues: {
       search: filters.search || "",
-      categoryId: filters.categoryId ?? undefined,
+      // ✅ Convertir a string para que coincida con los SelectItem
+      categoryId: filters.categoryId ? String(filters.categoryId) : "",
       minPrice: filters.minPrice,
       maxPrice: filters.maxPrice,
     },
@@ -67,15 +67,11 @@ export const ProductFilters = () => {
     void fetchTree();
   }, [fetchTree]);
 
+  // ✅ Asegurar que todos los valores sean strings
   const categoryOptions = flattenCategoryTree(tree).map((cat) => ({
     label: cat.name,
-    value: cat.id,
+    value: String(cat.id),
   }));
-
-  const getCategoryLabel = (value?: string) =>
-    value
-      ? categoryOptions.find((item) => item.value === value)?.label
-      : undefined;
 
   const onSubmit = async (values: FilterFormValues) => {
     const cleanedFilters: Partial<FilterFormValues> = {};
@@ -83,7 +79,8 @@ export const ProductFilters = () => {
     if (values.search?.trim()) {
       cleanedFilters.search = values.search.trim();
     }
-    if (values.categoryId) {
+    // ✅ Solo agregar si tiene valor real (no string vacío)
+    if (values.categoryId && values.categoryId.trim()) {
       cleanedFilters.categoryId = values.categoryId;
     }
 
@@ -101,12 +98,16 @@ export const ProductFilters = () => {
   };
 
   const handleClearFilters = () => {
+    // ✅ Resetear el formulario con valores explícitos
     form.reset({
       search: "",
-      categoryId: undefined,
+      categoryId: "", // ✅ String vacío, no undefined
       minPrice: undefined,
       maxPrice: undefined,
     });
+
+    // ✅ Forzar el reset del Controller explícitamente
+    form.setValue("categoryId", "", { shouldValidate: false });
 
     clearFilters();
   };
@@ -125,13 +126,15 @@ export const ProductFilters = () => {
         <Controller
           name="categoryId"
           control={form.control}
-          defaultValue={undefined}
           render={({ field }) => (
             <Field>
               <FieldLabel>Categoría</FieldLabel>
               <Select
-                value={field.value ?? undefined}
-                onValueChange={(next) => field.onChange(next || undefined)}
+                items={categoryOptions} // 👈 ESTA es la línea que faltaba
+                value={field.value || ""}
+                onValueChange={(next) =>
+                  field.onChange(next === "" ? undefined : next)
+                }
               >
                 <SelectTrigger
                   className="w-full max-w-48"
@@ -141,9 +144,7 @@ export const ProductFilters = () => {
                     placeholder={
                       tree.length ? "Selecciona una categoría" : "Cargando..."
                     }
-                  >
-                    {(value) => (value ? getCategoryLabel(value) : undefined)}
-                  </SelectValue>
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
