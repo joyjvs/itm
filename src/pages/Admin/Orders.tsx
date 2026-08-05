@@ -4,12 +4,16 @@ import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrders } from "@/hooks/useOrders";
 import { PaginationControls } from "@/components/common/PaginationControls";
+import { OrderFilters } from "@/components/forms/Admin/Orders/OrderFilters";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Package, ShoppingBag, Truck } from "lucide-react";
 import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
-import type { OrderStatus } from "@/types/order.types";
+import type {
+  OrderFilters as OrderFiltersType,
+  OrderStatus,
+} from "@/types/order.types";
 
 const statusStyles: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -37,7 +41,10 @@ export const OrdersPageAdmin = () => {
     orders,
     isLoading,
     error,
+    filters,
     fetchOrders,
+    setFilters,
+    clearFilters,
     updateOrderStatus,
     currentPage,
     itemsPerPage,
@@ -46,6 +53,18 @@ export const OrdersPageAdmin = () => {
     setPage,
     setItemsPerPage,
   } = useOrders();
+
+  const handleFilterSubmit = (appliedFilters: OrderFiltersType) => {
+    if (!user?.id) return;
+    setFilters(appliedFilters);
+    void fetchOrders(user.id, true, 1, itemsPerPage, appliedFilters);
+  };
+
+  const handleFilterClear = () => {
+    if (!user?.id) return;
+    clearFilters();
+    void fetchOrders(user.id, true, 1, itemsPerPage);
+  };
 
   useEffect(() => {
     if (user?.id) {
@@ -75,6 +94,14 @@ export const OrdersPageAdmin = () => {
               administración.
             </p>
           </div>
+        </div>
+
+        <div className="mb-6">
+          <OrderFilters
+            defaultValues={filters}
+            onSubmit={handleFilterSubmit}
+            onClear={handleFilterClear}
+          />
         </div>
 
         {isLoading ? (

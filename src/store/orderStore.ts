@@ -1,6 +1,7 @@
 // src/store/orderStore.ts
 import { create } from "zustand";
 import {
+  OrderFilters,
   OrderStore,
   CreateOrderPayload,
   OrderStatus,
@@ -19,18 +20,22 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
   totalPages: 0,
   lastUserId: null,
   lastIsAdmin: false,
+  filters: undefined,
 
   fetchOrders: async (
     userId: string,
     isAdmin = false,
     page = 1,
     limit = 10,
+    filters,
   ) => {
+    const nextFilters = isAdmin ? (filters ?? get().filters) : undefined;
     set({
       isLoading: true,
       error: null,
       lastUserId: userId,
       lastIsAdmin: isAdmin,
+      filters: nextFilters,
     });
     try {
       const response = await orderService.getOrders(
@@ -38,6 +43,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
         isAdmin,
         page,
         limit,
+        nextFilters,
       );
       set({
         orders: response.data,
@@ -71,17 +77,37 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
   },
 
   setPage: (page: number) => {
-    const { lastUserId, lastIsAdmin, itemsPerPage } = get();
+    const { lastUserId, lastIsAdmin, itemsPerPage, filters } = get();
     if (!lastUserId) return;
     set({ currentPage: page });
-    void get().fetchOrders(lastUserId, lastIsAdmin, page, itemsPerPage);
+    void get().fetchOrders(
+      lastUserId,
+      lastIsAdmin,
+      page,
+      itemsPerPage,
+      filters,
+    );
   },
 
   setItemsPerPage: (limit: number) => {
-    const { lastUserId, lastIsAdmin } = get();
+    const { lastUserId, lastIsAdmin, filters } = get();
     if (!lastUserId) return;
     set({ itemsPerPage: limit, currentPage: 1 });
-    void get().fetchOrders(lastUserId, lastIsAdmin, 1, limit);
+    void get().fetchOrders(lastUserId, lastIsAdmin, 1, limit, filters);
+  },
+
+  setFilters: (filters: OrderFilters) => {
+    const { lastUserId, lastIsAdmin, itemsPerPage } = get();
+    set({ filters, currentPage: 1 });
+    if (!lastUserId) return;
+    void get().fetchOrders(lastUserId, lastIsAdmin, 1, itemsPerPage, filters);
+  },
+
+  clearFilters: () => {
+    const { lastUserId, lastIsAdmin, itemsPerPage } = get();
+    set({ filters: undefined, currentPage: 1 });
+    if (!lastUserId) return;
+    void get().fetchOrders(lastUserId, lastIsAdmin, 1, itemsPerPage);
   },
 
   createOrder: async (payload: CreateOrderPayload, userId: string) => {

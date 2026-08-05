@@ -4,6 +4,7 @@ import type {
   Order,
   CreateOrderPayload,
   BackendOrderStatus,
+  OrderFilters,
   OrderStatus,
 } from "../../types/order.types";
 import type { PaginatedResponse } from "@/types/pagination.types";
@@ -75,11 +76,24 @@ export const orderService = {
     isAdmin = false,
     page = 1,
     limit = 10,
+    filters?: OrderFilters,
   ): Promise<PaginatedResponse<Order>> => {
+    const params = {
+      page,
+      limit,
+      ...(isAdmin ? filters : {}),
+    };
+
+    const queryParams = Object.fromEntries(
+      Object.entries(params).filter(
+        ([, value]) => value !== undefined && value !== null && value !== "",
+      ),
+    );
+
     const response = await axiosClient.get(
       isAdmin ? ENDPOINTS.ORDERS.LIST : ENDPOINTS.ORDERS.MY_ORDERS(userId),
       {
-        params: { page, limit },
+        params: queryParams,
       },
     );
 

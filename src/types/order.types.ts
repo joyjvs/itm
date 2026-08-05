@@ -9,6 +9,15 @@ export type BackendOrderStatus =
 
 export type OrderStatus = BackendOrderStatus | "processing";
 
+export interface OrderFilters {
+  orderId?: string;
+  status?: BackendOrderStatus;
+  deliveryMethod?: Order["deliveryMethod"];
+  email?: string;
+  createdAfter?: string;
+  createdBefore?: string;
+}
+
 export interface OrderProduct {
   id: string;
   createdAt: string;
@@ -76,7 +85,11 @@ export interface OrderStore {
     isAdmin?: boolean,
     page?: number,
     limit?: number,
+    filters?: OrderFilters,
   ) => Promise<void>;
+  filters?: OrderFilters;
+  setFilters: (filters: OrderFilters) => void;
+  clearFilters: () => void;
   fetchOrderById: (
     orderId: string,
     userId?: string,
