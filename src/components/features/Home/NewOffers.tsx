@@ -132,7 +132,12 @@ export default function NewOffers() {
                   key={`offer-slide-${slideIndex}`}
                   className="basis-full"
                 >
-                  <div className={`grid gap-6 ${gridColsClass}`}>
+                  {/* 👇 py-4 da aire para que el overflow-hidden del Carousel no recorte
+            bordes, sombra ni el lift del hover.
+            justify-items-center centra las tarjetas (que son max-w-[260px]) en su celda */}
+                  <div
+                    className={`grid gap-6 py-4 items-stretch justify-items-center ${gridColsClass}`}
+                  >
                     {slideProducts.map((product) => {
                       const imageSrc =
                         product.images?.[0] ||

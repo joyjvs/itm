@@ -88,19 +88,33 @@ const ProductsCarousel = ({ products }: ProductsCarouselProps) => {
       <Carousel className="w-full">
         <CarouselContent>
           {slides.map((slideProducts, slideIndex) => (
-            <CarouselItem key={`slide-${slideIndex}`} className="basis-full">
-              <div className={`grid gap-6 ${gridColsClass}`}>
-                {slideProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    description={product.description}
-                    price={product.price}
-                    image={product.image ?? product.images?.[0] ?? ""}
-                    stock={product.stock}
-                  />
-                ))}
+            <CarouselItem
+              key={`offer-slide-${slideIndex}`}
+              className="basis-full"
+            >
+              {/* 👇 py-4 da aire para que el overflow-hidden del Carousel no recorte
+            bordes, sombra ni el lift del hover.
+            justify-items-center centra las tarjetas (que son max-w-[260px]) en su celda */}
+              <div
+                className={`grid gap-6 py-4 items-stretch justify-items-center ${gridColsClass}`}
+              >
+                {slideProducts.map((product) => {
+                  const imageSrc =
+                    product.images?.[0] ||
+                    product.image ||
+                    "/banners-home/8pm.jpg";
+
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      image={imageSrc}
+                      className="h-full"
+                    />
+                  );
+                })}
               </div>
             </CarouselItem>
           ))}

@@ -9,6 +9,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
+const toNumber = (value: number | string | null | undefined) => {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
+
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -53,6 +58,7 @@ const ProductDetail = () => {
     if (product) {
       const item = {
         ...product,
+        price: toNumber(product.price), // 👈 garantiza number
         image: product.image ?? product.images?.[0] ?? "",
       };
       addItem(item, quantity);
@@ -130,6 +136,8 @@ const ProductDetail = () => {
     typeof product.category === "string"
       ? product.category
       : (product.category?.name ?? "Sin categoría");
+  
+  const normalizedPrice = toNumber(product.price);
 
   return (
     <MainLayout>
@@ -198,7 +206,7 @@ const ProductDetail = () => {
 
                 <div className="flex items-baseline gap-4 mb-6">
                   <span className="text-4xl font-bold text-blue-600">
-                    ${product.price.toFixed(2)}
+                    ${normalizedPrice.toFixed(2)}
                   </span>
                 </div>
 

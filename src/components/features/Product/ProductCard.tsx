@@ -1,14 +1,6 @@
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
@@ -66,21 +58,18 @@ export const ProductCard = ({
   const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-
     const product: Product = {
       id: String(id),
       name,
       description: description ?? "",
       price: normalizedPrice,
-      categoryId: "00000000-0000-0000-0000-000000000000", // usa un UUID real si ya tienes categoría
+      categoryId: "00000000-0000-0000-0000-000000000000",
       images: image ? [image] : [],
       stock,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
     addItem(product, quantity);
-
     if (onAddToCart) {
       onAddToCart(id, quantity);
     }
@@ -88,101 +77,106 @@ export const ProductCard = ({
 
   return (
     <Card
-      className={`overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col max-w-xs ${className}`}
+      className={`group relative z-10 w-full max-w-[260px] overflow-hidden rounded-2xl ... ${className}`}
     >
-      <div className="relative w-full aspect-square overflow-hidden">
-        <Link to={`/product/${id}`} className="block">
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-full object-contain"
-          />
-        </Link>
+      {/* ===== Imagen ===== */}
+      <Link
+        to={`/product/${id}`}
+        className="relative block aspect-square w-full overflow-hidden bg-gradient-to-b from-slate-50 to-white"
+      >
+        <img
+          src={image}
+          alt={name}
+          className="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+        />
+
         {year && (
-          <div className="absolute top-3 right-3 flex flex-col items-center justify-center w-16 h-16 rounded-full bg-white/90 shadow-md border-2 border-amber-600 text-center">
-            <span className="text-[8px] font-bold text-amber-700 uppercase leading-tight">
-              Since
-            </span>
-            <span className="text-sm font-extrabold text-amber-800 leading-tight">
-              {year}
+          <span className="absolute right-2 top-2 rounded-full border border-amber-200/70 bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-amber-700 shadow-sm backdrop-blur">
+            {year}
+          </span>
+        )}
+
+        {stock === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+            <span className="rounded-full bg-slate-900/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
+              Agotado
             </span>
           </div>
         )}
-      </div>
+      </Link>
 
-      <CardHeader className="pb-1 pt-1 px-2">
-        <CardTitle className="text-sm font-bold text-gray-800 uppercase tracking-wide">
-          {name}
-        </CardTitle>
-        {description && (
-          <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
-        )}
-      </CardHeader>
+      {/* ===== Información ===== */}
+      <div className="flex flex-col gap-1.5 p-3">
+        <Link to={`/product/${id}`} className="block min-w-0">
+          <h3 className="truncate text-sm font-semibold text-slate-800 transition-colors group-hover:text-blue-950">
+            {name}
+          </h3>
+          {description && (
+            <p className="truncate text-xs text-slate-400">{description}</p>
+          )}
+        </Link>
 
-      <CardContent className="pb-1 px-2 space-y-1 flex-grow">
         <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-blue-950">
+          <span className="text-base font-bold tracking-tight text-blue-950">
             ${formattedPrice}
           </span>
-          <Badge variant="secondary" className="bg-blue-100 text-blue-950">
-            {stock > 0 ? `Disponible` : "Agotado"}
-          </Badge>
+          <span
+            className={`flex items-center gap-1 text-[10px] font-medium ${
+              stock > 0 ? "text-emerald-600" : "text-red-500"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                stock > 0 ? "bg-emerald-500" : "bg-red-500"
+              }`}
+            />
+            {stock > 0 ? "Disponible" : "Agotado"}
+          </span>
         </div>
 
+        {/* ===== Cantidad + CTA ===== */}
         {stock > 0 && (
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-sm text-gray-500">Cantidad:</span>
-            <div className="flex items-center gap-1">
-              <Button
+          <div className="mt-1 flex items-center gap-2">
+            <div className="flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-50">
+              <button
                 type="button"
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                onClick={(event) => {
-                  event.preventDefault();
-                  decrement();
-                }}
+                aria-label="Disminuir cantidad"
+                onClick={decrement}
                 disabled={quantity <= 1}
+                className="px-1.5 py-1.5 text-slate-500 transition-colors hover:text-blue-950 disabled:opacity-30"
               >
                 <Minus className="h-3 w-3" />
-              </Button>
-              <Input
+              </button>
+              <input
                 type="number"
                 min={1}
                 max={stock}
                 value={quantity}
                 onChange={handleQuantityChange}
-                className="w-12 h-8 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 aria-label="Cantidad"
+                className="w-7 bg-transparent text-center text-xs font-semibold text-slate-800 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  increment();
-                }}
+                aria-label="Aumentar cantidad"
+                onClick={increment}
                 disabled={quantity >= stock}
+                className="px-1.5 py-1.5 text-slate-500 transition-colors hover:text-blue-950 disabled:opacity-30"
               >
                 <Plus className="h-3 w-3" />
-              </Button>
+              </button>
             </div>
+
+            <Button
+              onClick={handleAddToCart}
+              className="h-8 flex-1 rounded-full bg-blue-950 text-xs font-semibold text-white hover:bg-blue-800"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Agregar
+            </Button>
           </div>
         )}
-      </CardContent>
-
-      <CardFooter className="pt-1 px-2 mt-auto">
-        <Button
-          onClick={(event) => handleAddToCart(event)}
-          className="w-full bg-blue-950 hover:bg-blue-700 text-white text-sm py-1"
-          disabled={stock === 0}
-        >
-          <ShoppingCart />
-          Agregar al carrito
-        </Button>
-      </CardFooter>
+      </div>
     </Card>
   );
 };
