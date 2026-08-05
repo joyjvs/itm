@@ -154,61 +154,76 @@ export const OrderFilters = ({
         <Controller
           name="status"
           control={form.control}
-          render={({ field }) => (
-            <Field>
-              <FieldLabel>Estado</FieldLabel>
-              <Select
-                value={field.value || ""}
-                onValueChange={(next) =>
-                  field.onChange(next === "" ? undefined : next)
-                }
-              >
-                <SelectTrigger className="w-full" onBlur={field.onBlur}>
-                  <SelectValue placeholder="Selecciona estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="">Todos</SelectItem>
-                    {statusOptions.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-          )}
+          render={({ field }) => {
+            const selectedStatusLabel =
+              statusOptions.find((item) => item.value === field.value)?.label;
+
+            return (
+              <Field>
+                <FieldLabel>Estado</FieldLabel>
+                <Select
+                  value={field.value || ""}
+                  onValueChange={(next) =>
+                    field.onChange(next === "" ? undefined : next)
+                  }
+                >
+                  <SelectTrigger className="w-full" onBlur={field.onBlur}>
+                    <SelectValue placeholder="Selecciona estado">
+                      {selectedStatusLabel}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="">Todos</SelectItem>
+                      {statusOptions.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            );
+          }}
         />
 
         <Controller
           name="deliveryMethod"
           control={form.control}
-          render={({ field }) => (
-            <Field>
-              <FieldLabel>Método de entrega</FieldLabel>
-              <Select
-                value={field.value || ""}
-                onValueChange={(next) =>
-                  field.onChange(next === "" ? undefined : next)
-                }
-              >
-                <SelectTrigger className="w-full" onBlur={field.onBlur}>
-                  <SelectValue placeholder="Selecciona método" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="">Todos</SelectItem>
-                    {deliveryMethodOptions.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-          )}
+          render={({ field }) => {
+            const selectedDeliveryMethodLabel =
+              deliveryMethodOptions.find((item) => item.value === field.value)
+                ?.label;
+
+            return (
+              <Field>
+                <FieldLabel>Método de entrega</FieldLabel>
+                <Select
+                  value={field.value || ""}
+                  onValueChange={(next) =>
+                    field.onChange(next === "" ? undefined : next)
+                  }
+                >
+                  <SelectTrigger className="w-full" onBlur={field.onBlur}>
+                    <SelectValue placeholder="Selecciona método">
+                      {selectedDeliveryMethodLabel}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="">Todos</SelectItem>
+                      {deliveryMethodOptions.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            );
+          }}
         />
 
         <Field>
