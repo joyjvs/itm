@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Layers } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -173,30 +173,32 @@ const SectionProducts = () => {
     return categories.flatMap((category) => category.products ?? []);
   }, [categories]);
 
-  const fetchCategoriesAndProducts = useCallback(async () => {
-    setIsLoading(true);
-    setErrorMessage(null);
-
-    try {
-      const categoryResponse = await categoriesService.getAll(
-        1,
-        MAX_CATEGORIES,
-      );
-
-      const nextCategories = categoryResponse.data ?? [];
-
-      setCategories(nextCategories);
-    } catch {
-      setCategories([]);
-      setErrorMessage("No se pudieron cargar las categorías en este momento.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void fetchCategoriesAndProducts();
-  }, [fetchCategoriesAndProducts]);
+    const loadCategoriesAndProducts = async () => {
+      setIsLoading(true);
+      setErrorMessage(null);
+
+      try {
+        const categoryResponse = await categoriesService.getAll(
+          1,
+          MAX_CATEGORIES,
+        );
+
+        const nextCategories = categoryResponse.data ?? [];
+
+        setCategories(nextCategories);
+      } catch {
+        setCategories([]);
+        setErrorMessage(
+          "No se pudieron cargar las categorías en este momento.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadCategoriesAndProducts();
+  }, []);
 
   return (
     <section
