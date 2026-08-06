@@ -21,6 +21,7 @@ export interface Product {
   slug?: string;
   sku?: string;
   status?: "active" | "inactive";
+  isWholesale?: boolean;
 }
 
 export type CreateProductPayload = {
@@ -30,11 +31,13 @@ export type CreateProductPayload = {
   stock: number;
   categoryId: string;
   images?: string[];
+  isWholesale?: boolean;
 };
 
 export type UpdateProductPayload = Partial<CreateProductPayload>;
 
 export interface ProductFilters {
+  isWholesale: boolean;
   search?: string;
   categoryId?: string;
   minPrice?: number;

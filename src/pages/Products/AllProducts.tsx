@@ -5,14 +5,24 @@ import { ProductFilters } from "@/components/forms/Admin/Productos/ProductFilter
 import { useProducts } from "@/hooks/useProducts";
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
+import { useParams } from "react-router-dom";
 
 const AllProducts = () => {
-  const { products, fetchProducts, isLoading, pagination, setPage, setLimit } =
-    useProducts();
+  const {
+    products,
+    fetchProducts,
+    isLoading,
+    pagination,
+    setPage,
+    setLimit,
+    setFilters,
+  } = useProducts();
+  const { isWholesale } = useParams<{ isWholesale?: string }>();
 
   useEffect(() => {
+    setFilters({ isWholesale: isWholesale === "true" });
     void fetchProducts();
-  }, [fetchProducts]);
+  }, [fetchProducts, isWholesale, setFilters]);
 
   return (
     <MainLayout>

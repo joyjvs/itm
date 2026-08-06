@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
 import { Badge } from "@/components/ui/badge";
 import { AdminMenuComponent } from "../features/Admin/AdminMenuComponent";
+import { ProductMenuComponent } from "../features/Product/ProductMenuComponent";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -40,13 +41,20 @@ const Header = () => {
               Inicio
             </Button>
 
-            <Button
+            {/* <Button
               className="text-blue-950"
               variant="link"
               onClick={() => navigate("/products")}
             >
               Comprar
-            </Button>
+            </Button> */}
+
+            <div className="hidden md:block">
+              <ProductMenuComponent />
+            </div>
+            <div className="hidden md:block">
+              <AdminMenuComponent />
+            </div>
 
             <Button
               className="text-blue-950"
@@ -55,9 +63,6 @@ const Header = () => {
             >
               Sobre nosotros
             </Button>
-            <div className="hidden md:block">
-              <AdminMenuComponent />
-            </div>
           </div>
         </div>
 

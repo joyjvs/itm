@@ -49,7 +49,7 @@ const normalizeNumberField = (value: unknown) => {
 };
 
 export const ProductFilters = () => {
-  const { filters, setFilters, clearFilters } = useProducts();
+  const { filters, setFilters } = useProducts();
   const { tree, fetchTree } = useCategories();
 
   const form = useForm<FilterFormValues>({
@@ -98,18 +98,21 @@ export const ProductFilters = () => {
   };
 
   const handleClearFilters = () => {
-    // ✅ Resetear el formulario con valores explícitos
     form.reset({
       search: "",
-      categoryId: "", // ✅ String vacío, no undefined
+      categoryId: "",
       minPrice: "",
       maxPrice: "",
     } as unknown as FilterFormValues);
 
-    // ✅ Forzar el reset del Controller explícitamente
     form.setValue("categoryId", "", { shouldValidate: false });
 
-    clearFilters();
+    setFilters({
+      search: "",
+      categoryId: undefined,
+      minPrice: undefined,
+      maxPrice: undefined,
+    });
   };
 
   return (

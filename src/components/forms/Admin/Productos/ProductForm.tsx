@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { ImageUpload } from "@/components/features/ImagesUpload";
 import { CategoryTreeSelect } from "@/components/category/CategoryTreeSelect";
 import InputComponent from "@/components/common/InputComponent";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Product } from "@/types/product.types";
 import { useProducts } from "@/hooks/useProducts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 const productSchema = z.object({
@@ -15,6 +16,7 @@ const productSchema = z.object({
   price: z.coerce.number().min(0, "Precio debe ser mayor o igual a 0"),
   stock: z.coerce.number().int().min(0, "Stock debe ser entero no negativo"),
   categoryId: z.string().min(1, "Selecciona una categoría"),
+  isWholesale: z.boolean().optional(),
 });
 
 type ProductFormValues = {
@@ -23,6 +25,7 @@ type ProductFormValues = {
   price: number;
   stock: number;
   categoryId: string;
+  isWholesale?: boolean;
 };
 
 interface ProductFormProps {
@@ -37,15 +40,29 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const isEditing = !!product;
 
-  const { register, handleSubmit, control } = useForm<ProductFormValues>({
-    defaultValues: {
+  const { register, handleSubmit, control, reset } = useForm<ProductFormValues>(
+    {
+      defaultValues: {
+        name: product?.name || "",
+        description: product?.description || "",
+        price: product?.price ?? 0,
+        stock: product?.stock ?? 0,
+        categoryId: product?.categoryId || "",
+        isWholesale: product?.isWholesale ?? false,
+      },
+    },
+  );
+
+  useEffect(() => {
+    reset({
       name: product?.name || "",
       description: product?.description || "",
       price: product?.price ?? 0,
       stock: product?.stock ?? 0,
       categoryId: product?.categoryId || "",
-    },
-  });
+      isWholesale: product?.isWholesale ?? false,
+    });
+  }, [product, reset]);
 
   const handleAddImage = (file: File | null) => {
     if (!file) return;
@@ -72,6 +89,8 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
       formData.append("price", String(data.price));
       formData.append("stock", String(data.stock));
       formData.append("categoryId", data.categoryId);
+      // send boolean as string so backend (multipart) receives it
+      formData.append("isWholesale", String(!!data.isWholesale));
 
       newImageFiles.forEach((file) => {
         formData.append("images", file);
@@ -137,6 +156,27 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
           </div>
         )}
       />
+
+      <Field className="items-center gap-3" orientation="horizontal">
+        <Controller
+          name="isWholesale"
+          control={control}
+          render={({ field }) => (
+            <>
+              <input
+                id="isWholesale"
+                type="checkbox"
+                checked={field.value}
+                onChange={(event) => field.onChange(event.target.checked)}
+                className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+              />
+              <FieldLabel htmlFor="isWholesale" className="text-sm font-medium">
+                Venta mayorista
+              </FieldLabel>
+            </>
+          )}
+        />
+      </Field>
 
       <div>
         <label className="text-sm font-medium">Imágenes</label>

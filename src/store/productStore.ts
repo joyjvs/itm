@@ -33,6 +33,7 @@ const defaultFilters: ProductFilters = {
   categoryId: undefined,
   minPrice: undefined,
   maxPrice: undefined,
+  isWholesale: false,
   //sortBy: "createdAt",
   //sortOrder: "desc",
 };
@@ -168,7 +169,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
       const cleanedFilters = Object.fromEntries(
         Object.entries(mergedFilters).filter(
-          ([_, value]) => value !== undefined && value !== "",
+          ([, value]) => value !== undefined && value !== "",
         ),
       ) as ProductFilters;
 
@@ -183,7 +184,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   clearFilters: () => {
-    set({ filters: { ...defaultFilters } });
+    const currentWholesale = get().filters.isWholesale;
+    set({ filters: { ...defaultFilters, isWholesale: currentWholesale } });
     const { pagination } = get();
     get().fetchProducts(pagination.currentPage, pagination.itemsPerPage);
   },

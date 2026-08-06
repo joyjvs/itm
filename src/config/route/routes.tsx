@@ -92,7 +92,7 @@ function RoutesComponents() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/products" element={<AllProducts />} />
+        <Route path="/products/:isWholesale?" element={<AllProducts />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/about" element={<About />} />
         <Route path="/cart" element={<CartPage />} />
