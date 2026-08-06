@@ -17,17 +17,30 @@ const AllProducts = () => {
     setLimit,
     setFilters,
   } = useProducts();
+
   const { isWholesale } = useParams<{ isWholesale?: string }>();
 
+  const isWholesaleMode = isWholesale === "true";
+
+  const pageTitle = isWholesaleMode
+    ? "Productos Mayoristas"
+    : "Productos Minoristas";
+
   useEffect(() => {
-    setFilters({ isWholesale: isWholesale === "true" });
+    setFilters({ isWholesale: isWholesaleMode });
     void fetchProducts();
-  }, [fetchProducts, isWholesale, setFilters]);
+  }, [fetchProducts, isWholesaleMode, setFilters]);
+
+  useEffect(() => {
+    document.title = pageTitle;
+  }, [pageTitle]);
 
   return (
     <MainLayout>
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-center mb-8">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="mb-6 text-2xl font-bold sm:text-3xl">{pageTitle}</h1>
+
+        <div className="mb-8 flex justify-center">
           <ProductFilters />
         </div>
 
@@ -41,7 +54,7 @@ const AllProducts = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {products.map((product) => (
                 <ProductCard
                   key={product.id}

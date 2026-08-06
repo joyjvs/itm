@@ -14,14 +14,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field, FieldLabel } from "@/components/ui/field";
-
 import InputComponent from "@/components/common/InputComponent";
 import { useCategories } from "@/hooks/useCategories";
 import { flattenCategoryTree } from "@/lib/category-utils";
 
 const filterSchema = z.object({
   search: z.string().optional(),
-  categoryId: z.string().optional(), // ✅ Debe ser string
+  categoryId: z.string().optional(),
   minPrice: z.preprocess(
     (value) =>
       value === "" || value === null || value === undefined
@@ -44,6 +43,7 @@ const normalizeNumberField = (value: unknown) => {
   if (value === "" || value === null || value === undefined) {
     return undefined;
   }
+
   const numberValue = Number(value);
   return Number.isFinite(numberValue) ? numberValue : undefined;
 };
@@ -56,7 +56,6 @@ export const ProductFilters = () => {
     resolver: zodResolver(filterSchema) as Resolver<FilterFormValues>,
     defaultValues: {
       search: filters.search || "",
-      // ✅ Convertir a string para que coincida con los SelectItem
       categoryId: filters.categoryId ? String(filters.categoryId) : "",
       minPrice: filters.minPrice,
       maxPrice: filters.maxPrice,
@@ -67,7 +66,6 @@ export const ProductFilters = () => {
     void fetchTree();
   }, [fetchTree]);
 
-  // ✅ Asegurar que todos los valores sean strings
   const categoryOptions = flattenCategoryTree(tree).map((cat) => ({
     label: cat.name,
     value: String(cat.id),
@@ -79,7 +77,7 @@ export const ProductFilters = () => {
     if (values.search?.trim()) {
       cleanedFilters.search = values.search.trim();
     }
-    // ✅ Solo agregar si tiene valor real (no string vacío)
+
     if (values.categoryId && values.categoryId.trim()) {
       cleanedFilters.categoryId = values.categoryId;
     }
@@ -116,82 +114,106 @@ export const ProductFilters = () => {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <div className="flex justify-around gap-4 ">
-        <InputComponent
-          htmlForm="producto"
-          label="Producto"
-          placeholder="Producto"
-          type="text"
-          {...form.register("search")}
-        />
+    <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-full">
+      <div className="flex min-w-0 flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        {/* Filtros */}
+        <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:flex-1 xl:grid-cols-4">
+          {/* Buscador */}
+          <div className="w-full min-w-0 [&_input]:w-full">
+            <InputComponent
+              htmlForm="producto"
+              label="Producto"
+              placeholder="Producto"
+              type="text"
+              {...form.register("search")}
+            />
+          </div>
 
-        <Controller
-          name="categoryId"
-          control={form.control}
-          render={({ field }) => (
-            <Field>
-              <FieldLabel>Categoría</FieldLabel>
-              <Select
-                items={categoryOptions} // 👈 ESTA es la línea que faltaba
-                value={field.value || ""}
-                onValueChange={(next) =>
-                  field.onChange(next === "" ? undefined : next)
-                }
-              >
-                <SelectTrigger
-                  className="w-full max-w-48"
-                  onBlur={field.onBlur}
-                >
-                  <SelectValue
-                    placeholder={
-                      tree.length ? "Selecciona una categoría" : "Cargando..."
+          {/* Categoría */}
+          <div className="w-full min-w-0">
+            <Controller
+              name="categoryId"
+              control={form.control}
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel>Categoría</FieldLabel>
+                  <Select
+                    items={categoryOptions}
+                    value={field.value || ""}
+                    onValueChange={(next) =>
+                      field.onChange(next === "" ? undefined : next)
                     }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {categoryOptions.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+                  >
+                    <SelectTrigger
+                      className="w-full min-w-0"
+                      onBlur={field.onBlur}
+                    >
+                      <SelectValue
+                        placeholder={
+                          tree.length
+                            ? "Selecciona una categoría"
+                            : "Cargando..."
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {categoryOptions.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+            />
+          </div>
+
+          {/* Precio mínimo */}
+          <div className="w-full min-w-0">
+            <Field>
+              <FieldLabel>Precio Mínimo</FieldLabel>
+              <Input
+                type="number"
+                placeholder="Min precio"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                {...form.register("minPrice")}
+                className="w-full min-w-0"
+              />
             </Field>
-          )}
-        />
+          </div>
 
-        <Field>
-          <FieldLabel>Precio Mínimo</FieldLabel>
-          <Input
-            type="number"
-            placeholder="Min precio"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            {...form.register("minPrice")}
-            className="w-32"
-          />
-        </Field>
+          {/* Precio máximo */}
+          <div className="w-full min-w-0">
+            <Field>
+              <FieldLabel>Precio Máximo</FieldLabel>
+              <Input
+                type="number"
+                placeholder="Max precio"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                {...form.register("maxPrice")}
+                className="w-full min-w-0"
+              />
+            </Field>
+          </div>
+        </div>
 
-        <Field>
-          <FieldLabel>Precio Máximo</FieldLabel>
-          <Input
-            type="number"
-            placeholder="Max precio"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            {...form.register("maxPrice")}
-            className="w-32"
-          />
-        </Field>
-
-        <div className="flex gap-2 items-end">
-          <Button type="submit" className="bg-blue-950">
+        {/* Botones */}
+        <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center xl:w-auto xl:shrink-0">
+          <Button type="submit" className="w-full bg-blue-950 sm:w-auto">
             Buscar
           </Button>
-          <Button type="button" variant="outline" onClick={handleClearFilters}>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClearFilters}
+            className="w-full sm:w-auto"
+          >
             Limpiar
           </Button>
         </div>
