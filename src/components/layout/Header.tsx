@@ -31,30 +31,34 @@ const Header = () => {
             className="h-22 w-auto sm:h-12 md:h-22"
           />
 
-          <Button
-            className="text-blue-950"
-            variant="link"
-            onClick={() => navigate("/")}
-          >
-            Inicio
-          </Button>
+          <div className="hidden md:flex items-center gap-4">
+            <Button
+              className="text-blue-950"
+              variant="link"
+              onClick={() => navigate("/")}
+            >
+              Inicio
+            </Button>
 
-          <Button
-            className="text-blue-950"
-            variant="link"
-            onClick={() => navigate("/products")}
-          >
-            Comprar
-          </Button>
+            <Button
+              className="text-blue-950"
+              variant="link"
+              onClick={() => navigate("/products")}
+            >
+              Comprar
+            </Button>
 
-          <Button
-            className="text-blue-950"
-            variant="link"
-            onClick={() => navigate("/about")}
-          >
-            Sobre nostros
-          </Button>
-          <AdminMenuComponent/>
+            <Button
+              className="text-blue-950"
+              variant="link"
+              onClick={() => navigate("/about")}
+            >
+              Sobre nosotros
+            </Button>
+            <div className="hidden md:block">
+              <AdminMenuComponent />
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">

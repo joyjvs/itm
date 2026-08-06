@@ -28,7 +28,7 @@ interface UIState {
 export const useUIStore = create<UIState>((set) => ({
   editingProject: null,
   editingTask: null,
-  sidebarOpen: true,
+  sidebarOpen: false,
   dialogOpen: {
     newProject: false,
     newTask: false,
