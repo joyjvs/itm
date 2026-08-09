@@ -7,6 +7,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import { Product } from "@/types/product.types";
 import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
 import { PaginationControls } from "@/components/common/PaginationControls";
+import { ProductFilters } from "@/components/forms/Admin/Productos/ProductFilters";
 
 export const ProductsPage = () => {
   const {
@@ -63,6 +64,9 @@ export const ProductsPage = () => {
           >
             + Nuevo
           </Button>
+        </div>
+        <div className="mt-2.5 mb-7">
+          <ProductFilters />
         </div>
 
         <ProductList
