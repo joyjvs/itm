@@ -37,7 +37,7 @@ export type CreateProductPayload = {
 export type UpdateProductPayload = Partial<CreateProductPayload>;
 
 export interface ProductFilters {
-  isWholesale: boolean;
+  isWholesale?: boolean;
   search?: string;
   categoryId?: string;
   minPrice?: number;

@@ -33,7 +33,7 @@ const defaultFilters: ProductFilters = {
   categoryId: undefined,
   minPrice: undefined,
   maxPrice: undefined,
-  isWholesale: false,
+  isWholesale: undefined,
   //sortBy: "createdAt",
   //sortOrder: "desc",
 };

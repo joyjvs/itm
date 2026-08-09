@@ -91,6 +91,10 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
       formData.append("categoryId", data.categoryId);
       // send boolean as string so backend (multipart) receives it
       formData.append("isWholesale", String(!!data.isWholesale));
+       console.log(data.isWholesale)
+      // if (data.isWholesale) {
+      //   formData.append("isWholesale", "true");
+      // }
 
       newImageFiles.forEach((file) => {
         formData.append("images", file);

@@ -17,6 +17,7 @@ export const ProductsPage = () => {
     pagination,
     setPage,
     setLimit,
+    setFilters,
   } = useProducts();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -26,8 +27,9 @@ export const ProductsPage = () => {
   );
 
   useEffect(() => {
+    setFilters({ isWholesale: undefined });
     void fetchProducts();
-  }, [fetchProducts]);
+  }, [fetchProducts, setFilters]);
 
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);

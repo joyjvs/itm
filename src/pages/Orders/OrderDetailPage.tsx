@@ -55,9 +55,10 @@ const OrderDetailPage = () => {
   );
 
   useEffect(() => {
-    if (id) {
-      void fetchOrderById(id, user?.id, isAdmin);
-    }
+    if (!id) return;
+    if (!user?.id && !isAdmin) return;
+
+    void fetchOrderById(id, user?.id, isAdmin);
   }, [id, user?.id, isAdmin, fetchOrderById]);
 
   const handleCancelRequest = () => {
