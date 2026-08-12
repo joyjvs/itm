@@ -11,6 +11,7 @@ export const useCategories = () => {
     itemsPerPage,
     totalItems,
     totalPages,
+    filters,
     fetchAll,
     fetchTree,
     createCategory,
@@ -19,6 +20,8 @@ export const useCategories = () => {
     setPage,
     setItemsPerPage,
     clearError,
+    setFilters,
+    clearFilters,
   } = useCategoryStore();
 
   return {
@@ -31,6 +34,7 @@ export const useCategories = () => {
     itemsPerPage,
     totalItems,
     totalPages,
+    filters,
     fetchAll,
     fetchTree,
     createCategory,
@@ -39,5 +43,7 @@ export const useCategories = () => {
     setPage,
     setItemsPerPage,
     clearError,
+    setFilters,
+    clearFilters
   };
 };

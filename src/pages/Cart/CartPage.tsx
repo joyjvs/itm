@@ -3,6 +3,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import { useCart } from "@/hooks/useCart";
 import { useOrders } from "@/hooks/useOrders";
 import { useAuth } from "@/hooks/useAuth";
+import { usePayment } from "@/hooks/usePayment";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +45,7 @@ const CartPage = () => {
 
   const { createOrder } = useOrders();
   const { user } = useAuth();
+  const { createPayment } = usePayment();
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -74,6 +76,10 @@ const CartPage = () => {
       // pedir al usuario que complete su dirección
       return navigate("/auth/profile");
     }
+    if (items.length === 0) {
+      showError("Carrito vacío", "Agrega al menos un producto para continuar.");
+      return;
+    }
 
     setIsCreating(true);
     try {
@@ -85,14 +91,29 @@ const CartPage = () => {
         deliveryMethod: deliveryMethod,
         deliveryAddress: user.address || "",
       };
+
       const order = await createOrder(payload, user.id);
+      const payment = await createPayment({
+        amount: Number(totalPrice.toFixed(2)),
+        currency: "EUR",
+        orderReference: order.id,
+        customerEmail: user.email,
+        description: `Pago de orden ${order.id}`,
+      });
+
       clearCart();
+
+      if (payment.paymentUrl) {
+        window.location.href = payment.paymentUrl;
+        return;
+      }
+
       navigate(`/order/${order.id}`);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "No se pudo crear la orden";
-      showError("No se pudo crear la orden", message);
-      console.error("Error creando orden", error);
+        error instanceof Error ? error.message : "No se pudo procesar el pago";
+      showError("No se pudo procesar el pago", message);
+      console.error("Error procesando pago", error);
     } finally {
       setIsCreating(false);
     }
@@ -238,7 +259,7 @@ const CartPage = () => {
                   onClick={() => create()}
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  {isCreating ? "Creando orden..." : "Crear orden"}
+                  {isCreating ? "Procesando pago..." : "Pagar ahora"}
                 </Button>
                 <Button
                   variant="outline"

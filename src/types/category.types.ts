@@ -18,4 +18,12 @@ export type CreateCategoryPayload = Pick<
   "name" | "description" | "parentId"
 >;
 
+export interface CategoryFilters {
+  name?: string;
+  description?: string;
+  parentId?: string | null;
+  createdAfter?: string;
+  createdBefore?: string;
+}
+
 export type UpdateCategoryPayload = Partial<CreateCategoryPayload>;

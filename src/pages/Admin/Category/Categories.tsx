@@ -7,6 +7,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import { Category } from "@/types/category.types";
 import { PaginationControls } from "@/components/common/PaginationControls";
 import ConfirmAlertDialog from "@/components/common/ConfirmAlertDialog";
+import CategoryFilters from "@/components/forms/Admin/Categorias/CategoryFilters";
 
 const CategoriesPage = () => {
   const {
@@ -66,6 +67,7 @@ const CategoriesPage = () => {
             + Nueva
           </Button>
         </div>
+        <CategoryFilters/>
         <CategoryList
           categories={categories}
           isLoading={isLoading}

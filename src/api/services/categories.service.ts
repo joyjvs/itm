@@ -2,6 +2,7 @@ import apiClient from "../client";
 import { ENDPOINTS } from "../endpoints";
 import type {
   Category,
+  CategoryFilters,
   CreateCategoryPayload,
   UpdateCategoryPayload,
 } from "../../types/category.types";
@@ -63,9 +64,16 @@ export const categoriesService = {
   getAll: async (
     page = 1,
     limit = 100,
+    filters: CategoryFilters = {},
   ): Promise<PaginatedResponse<Category>> => {
+    const params = { page, limit, ...filters } as Record<string, any>;
+    const cleanedParams = Object.fromEntries(
+      Object.entries(params).filter(
+        ([_, value]) => value !== undefined && value !== "" && value !== null,
+      ),
+    );
     const response = await apiClient.get(ENDPOINTS.CATEGORIES.LIST, {
-      params: { page, limit },
+      params: cleanedParams,
     });
 
     const rawData = response.data?.data ?? [];

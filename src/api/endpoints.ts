@@ -79,4 +79,8 @@ export const ENDPOINTS = {
         ? `/api/orders/me/${id}/${userId}/cancel`
         : `/api/orders/${id}/cancel`,
   },
+  // Payments
+  PAYMENTS: {
+    CREDIT_CARD: "/api/payments/credit-card",
+  },
 };

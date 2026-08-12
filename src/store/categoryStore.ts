@@ -6,6 +6,7 @@ import {
   UpdateCategoryPayload,
 } from "../types/category.types";
 import { showError, showSuccess } from "../utils/toast";
+import { CategoryFilters } from "../types/category.types";
 
 interface CategoryState {
   categories: Category[];
@@ -17,6 +18,7 @@ interface CategoryState {
   itemsPerPage: number;
   totalItems: number;
   totalPages: number;
+  filters: CategoryFilters;
   fetchAll: (page?: number, limit?: number) => Promise<void>;
   fetchTree: () => Promise<void>;
   createCategory: (payload: CreateCategoryPayload) => Promise<void>;
@@ -25,7 +27,17 @@ interface CategoryState {
   setPage: (page: number) => void;
   setItemsPerPage: (limit: number) => void;
   clearError: () => void;
+  setFilters: (filters: Partial<CategoryFilters>) => void;
+  clearFilters: () => void;
 }
+
+const defaultFilters: CategoryFilters = {
+  name: "",
+  parentId: "",
+  description: "",
+  createdAfter: "",
+  createdBefore: "",
+};
 
 export const useCategoryStore = create<CategoryState>((set, get) => ({
   categories: [],
@@ -37,11 +49,13 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
   itemsPerPage: 10,
   totalItems: 0,
   totalPages: 0,
+  filters: { ...defaultFilters },
 
   fetchAll: async (page = 1, limit = 10) => {
     set({ isLoading: true, error: null });
+    const { filters } = get();
     try {
-      const response = await categoriesService.getAll(page, limit);
+      const response = await categoriesService.getAll(page, limit, filters);
       set({
         categories: response.data,
         isLoading: false,
@@ -139,4 +153,30 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  setFilters: (newFilters: Partial<CategoryFilters>) => {
+    set((state) => {
+      const mergedFilters: CategoryFilters = {
+        ...state.filters,
+        ...newFilters,
+      };
+
+      const cleanedFilters = Object.fromEntries(
+        Object.entries(mergedFilters).filter(
+          ([, value]) => value !== undefined && value !== "",
+        ),
+      ) as CategoryFilters;
+
+      return {
+        filters: cleanedFilters,
+        currentPage: 1,
+        itemsPerPage: state.itemsPerPage,
+        totalItems: state.totalItems,
+        totalPages: state.totalPages,
+      };
+    });
+    const { currentPage, itemsPerPage } = get();
+    get().fetchAll(currentPage, itemsPerPage);
+  },
+  clearFilters: () => set({ filters: defaultFilters }),
 }));
