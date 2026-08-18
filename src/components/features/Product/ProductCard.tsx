@@ -5,6 +5,7 @@ import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
 import { Product } from "@/types/product.types";
+import { getValidImageUrl } from "@/utils/imageHelper";
 
 interface ProductCardProps {
   id: string | number;
@@ -37,6 +38,10 @@ export const ProductCard = ({
 }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(initialQuantity);
   const { addItem } = useCart();
+
+  // Obtenemos la primera imagen del array (o undefined si no tiene)
+  const imageUrl = getValidImageUrl(image);
+  console.log("Image URL:", imageUrl); // Debug: Verificar la URL de la imagen
 
   const priceValue = typeof price === "number" ? price : Number(price);
   const normalizedPrice = Number.isFinite(priceValue) ? priceValue : 0;
@@ -109,7 +114,7 @@ export const ProductCard = ({
         className="relative block aspect-square w-full overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/70"
       >
         <img
-          src={image}
+          src={imageUrl}
           alt={name}
           loading="lazy"
           decoding="async"
@@ -260,4 +265,4 @@ export const ProductCard = ({
       </div>
     </Card>
   );
-};
+};;

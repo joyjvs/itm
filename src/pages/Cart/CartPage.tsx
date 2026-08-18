@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { CreateOrderPayload, DeliveryMethod } from "@/types/order.types";
 import { showError } from "@/utils/toast";
+import { CreatePaymentPayload } from "@/types/payment.types";
 
 const CartPage = () => {
   const {
@@ -93,18 +94,32 @@ const CartPage = () => {
       };
 
       const order = await createOrder(payload, user.id);
-      const payment = await createPayment({
+      const orderUrl = `https://iberoshop.com/order/${order.id}`;
+      const paymentPayload: CreatePaymentPayload = {
         amount: Number(totalPrice.toFixed(2)),
         currency: "EUR",
-        orderReference: order.id,
+        identifier: order.id,
         customerEmail: user.email,
-        description: `Pago de orden ${order.id}`,
-      });
+        customerName:
+          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+          user.email,
+        customerPhone: user.phone || "",
+        lang: "PT",
+        successUrl: orderUrl,
+        failUrl: orderUrl,
+        backUrl: orderUrl,
+        notify: false,
+        failOver: false,
+        userId: user.id,
+      };
+
+      const payment = await createPayment(paymentPayload);
 
       clearCart();
 
-      if (payment.paymentUrl) {
-        window.location.href = payment.paymentUrl;
+      const redirectUrl = payment.redirectUrl || payment.paymentUrl;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
         return;
       }
 
