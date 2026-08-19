@@ -4,7 +4,7 @@ import { useCart } from "@/hooks/useCart";
 import { useOrders } from "@/hooks/useOrders";
 import { useAuth } from "@/hooks/useAuth";
 import { usePayment } from "@/hooks/usePayment";
-import { useState } from "react";
+import {  useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,6 +24,7 @@ import {
 import { CreateOrderPayload, DeliveryMethod } from "@/types/order.types";
 import { showError } from "@/utils/toast";
 import { CreatePaymentPayload } from "@/types/payment.types";
+import ProcessingPaymentOverlay from "@/components/features/ProcessingPaymentOverlay";
 
 const CartPage = () => {
   const {
@@ -49,6 +50,7 @@ const CartPage = () => {
   const { createPayment } = usePayment();
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
+  const redirectingRef = useRef(false);
 
   if (items.length === 0) {
     return (
@@ -118,6 +120,7 @@ const CartPage = () => {
       clearCart();
 
       const redirectUrl = payment.redirectUrl || payment.paymentUrl;
+      redirectingRef.current = true;
       if (redirectUrl) {
         window.location.href = redirectUrl;
         return;
@@ -136,6 +139,8 @@ const CartPage = () => {
 
   return (
     <MainLayout>
+      {isCreating && <ProcessingPaymentOverlay />}
+
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-6">
           <Link to="/products">
