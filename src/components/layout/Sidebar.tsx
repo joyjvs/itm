@@ -1,5 +1,5 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FolderOpen, Users, X } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 import { useUIStore } from "../../store/uiStore";
 import { useAuth } from "@/hooks/useAuth";
 import Button from "../common/Button";

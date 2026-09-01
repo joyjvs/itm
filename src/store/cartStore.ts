@@ -108,25 +108,29 @@ export const useCartStore = create<CartStore>()(
     {
       name: "cart-storage", // clave en localStorage
       storage: createJSONStorage(() => localStorage),
-      migrate: (persistedState: any) => {
-        if (!persistedState) return persistedState;
+      migrate: (persistedState: unknown) => {
+        if (!persistedState || typeof persistedState !== "object") {
+          return persistedState as CartStore | undefined;
+        }
 
-        const items = (persistedState.items ?? []).map((item: any) => ({
+        const state = persistedState as Partial<CartStore> & {
+          items?: Array<CartItem & { price: number | string }>;
+        };
+        const items = (state.items ?? []).map((item) => ({
           ...item,
           price: normalizePrice(item.price),
         }));
 
         const totalPrice = items.reduce(
-          (sum: number, item: any) =>
-            sum + normalizePrice(item.price) * item.quantity,
+          (sum, item) => sum + normalizePrice(item.price) * item.quantity,
           0,
         );
 
         return {
-          ...persistedState,
+          ...state,
           items,
           totalPrice,
-        };
+        } as CartStore;
       },
     },
   ),

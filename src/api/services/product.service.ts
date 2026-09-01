@@ -12,10 +12,10 @@ export const productsService = {
     limit: number = 10,
     filters: ProductFilters = {},
   ): Promise<ProductsResponse> => {
-    const params = { page, limit, ...filters } as Record<string, any>;
+    const params: Record<string, unknown> = { page, limit, ...filters };
     const cleanedParams = Object.fromEntries(
       Object.entries(params).filter(
-        ([_, value]) => value !== undefined && value !== "" && value !== null,
+        ([, value]) => value !== undefined && value !== "" && value !== null,
       ),
     );
 
@@ -43,6 +43,7 @@ export const productsService = {
     const response = await apiClient.post(ENDPOINTS.PRODUCTS.CREATE, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
+    console.log(response);
     return response.data;
   },
 

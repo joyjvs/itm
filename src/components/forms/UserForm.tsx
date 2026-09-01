@@ -62,6 +62,8 @@ const UserForm = ({ user, onSuccess }: UserFormProps) => {
           firstName: updateData.name,
           lastName: updateData.lastName,
           email: updateData.email,
+          address: "",
+          phone: ""
         });
       } else {
         await usersService.create(data as CreateUserFormData);

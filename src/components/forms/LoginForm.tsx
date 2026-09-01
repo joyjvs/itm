@@ -10,6 +10,7 @@ import { useAuth } from "../../hooks/useAuth";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import Alert from "../common/Alert";
+import InputComponent from "../common/InputComponent";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -61,7 +62,8 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
         error={errors.email?.message}
       />
 
-      <Input
+      <InputComponent
+        htmlForm="input-field-password"
         label="Contraseña"
         placeholder="••••••••"
         type="password"

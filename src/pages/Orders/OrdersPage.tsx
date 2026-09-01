@@ -39,7 +39,7 @@ const OrdersPage = () => {
     if (user?.id) {
       void fetchOrders(user.id, isAdmin);
     }
-  }, [user?.id, isAdmin]);
+  }, [user?.id, isAdmin, fetchOrders]);
 
   const getStatusInfo = (status: string) => {
     const normalizedStatus = status?.toLowerCase() || "pending";

@@ -74,7 +74,7 @@ export const useAuthStore = create<AuthState>()(
       ) => {
         set({ isLoading: true, error: null });
         try {
-          const response: AuthResponse = await authService.register({
+          await authService.register({
             email,
             password,
             firstName,

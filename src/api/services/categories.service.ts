@@ -8,7 +8,7 @@ import type {
 } from "../../types/category.types";
 import type { PaginatedResponse } from "@/types/pagination.types";
 import { buildCategoryTree } from "../../lib/category-utils";
-import type { Product } from "../../types/product.types";
+import type { Product, ProductCategory } from "../../types/product.types";
 
 type CategoryApiProduct = {
   id?: string;
@@ -33,14 +33,14 @@ type CategoryApiResponse = {
   [key: string]: unknown;
 };
 
-const normalizeProduct = (product?: CategoryApiProduct | null): Product => ({
-  id: product.id,
-  name: product.name,
+const normalizeProduct = (product: CategoryApiProduct): Product => ({
+  id: product.id ?? "",
+  name: product.name ?? "",
   description: product.description,
   price: Number(product.price ?? 0),
   stock: Number(product.stock ?? 0),
   categoryId: product.categoryId ?? "",
-  category: product.category,
+  category: product.category as ProductCategory,
   images: Array.isArray(product.images) ? product.images : [],
   image:
     Array.isArray(product.images) && product.images.length > 0
@@ -50,15 +50,21 @@ const normalizeProduct = (product?: CategoryApiProduct | null): Product => ({
   updatedAt: product.updatedAt ?? new Date().toISOString(),
 });
 
-const normalizeCategory = (item: CategoryApiResponse): Category => ({
-  id: item.id,
-  name: item.name,
-  description: item.description,
-  parentId: item.parent?.id ?? null,
-  parent: item.parent ? { id: item.parent.id, name: item.parent.name } : null,
-  children: (item.children ?? []).map(normalizeCategory),
-  products: (item.products ?? []).map(normalizeProduct),
-});
+const normalizeCategory = (item: CategoryApiResponse): Category => {
+  const parent = item.parent?.id
+    ? { id: item.parent.id, name: item.parent.name ?? undefined }
+    : null;
+
+  return {
+    id: item.id ?? "",
+    name: item.name ?? "",
+    description: item.description ?? "",
+    parentId: item.parent?.id ?? null,
+    parent,
+    children: (item.children ?? []).map(normalizeCategory),
+    products: (item.products ?? []).map(normalizeProduct),
+  };
+};
 
 export const categoriesService = {
   getAll: async (
@@ -66,10 +72,10 @@ export const categoriesService = {
     limit = 100,
     filters: CategoryFilters = {},
   ): Promise<PaginatedResponse<Category>> => {
-    const params = { page, limit, ...filters } as Record<string, any>;
+    const params: Record<string, unknown> = { page, limit, ...filters };
     const cleanedParams = Object.fromEntries(
       Object.entries(params).filter(
-        ([_, value]) => value !== undefined && value !== "" && value !== null,
+        ([, value]) => value !== undefined && value !== "" && value !== null,
       ),
     );
     const response = await apiClient.get(ENDPOINTS.CATEGORIES.LIST, {

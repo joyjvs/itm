@@ -4,7 +4,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrders } from "@/hooks/useOrders";
 import { PaginationControls } from "@/components/common/PaginationControls";
-import { OrderFilters } from "@/components/forms/Admin/Orders/OrderFilters";
+import { OrderFiltersComponent } from "@/components/forms/Admin/Orders/OrderFilters";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -97,7 +97,7 @@ export const OrdersPageAdmin = () => {
         </div>
 
         <div className="mb-6">
-          <OrderFilters
+          <OrderFiltersComponent
             defaultValues={filters}
             onSubmit={handleFilterSubmit}
             onClear={handleFilterClear}

@@ -1,12 +1,15 @@
 {
   "name": "iberotrust-frontend",
+  "homepage": "https://iberomax.shop",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint:eslint": "eslint .",
+    "lint:typescript": "tsc -b --pretty false",
+    "lint": "run-p --continue-on-error lint:eslint lint:typescript",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -50,6 +53,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "npm-run-all2": "^9.0.3",
     "postcss": "^8.5.15",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.0",

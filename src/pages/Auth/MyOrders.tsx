@@ -4,7 +4,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrders } from "@/hooks/useOrders";
 import { PaginationControls } from "@/components/common/PaginationControls";
-import { OrderFilters } from "@/components/forms/Admin/Orders/OrderFilters";
+import { OrderFiltersComponent } from "@/components/forms/Admin/Orders/OrderFilters";
 import type {
   Order,
   OrderFilters as OrderFiltersType,
@@ -142,7 +142,7 @@ const MyOrdersPage = () => {
         </div>
 
         <div className="mb-8">
-          <OrderFilters
+          <OrderFiltersComponent
             defaultValues={filters}
             onSubmit={handleFilterSubmit}
             onClear={handleFilterClear}

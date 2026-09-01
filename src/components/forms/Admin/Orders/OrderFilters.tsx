@@ -88,7 +88,7 @@ interface OrderFiltersProps {
   onClear: () => void;
 }
 
-export const OrderFilters = ({
+export const OrderFiltersComponent = ({
   defaultValues,
   onSubmit,
   onClear,
@@ -97,8 +97,8 @@ export const OrderFilters = ({
     resolver: zodResolver(filterSchema) as Resolver<OrderFilterFormValues>,
     defaultValues: {
       orderId: defaultValues?.orderId ?? "",
-      status: defaultValues?.status ?? "",
-      deliveryMethod: defaultValues?.deliveryMethod ?? "",
+      status: defaultValues?.status ?? undefined,
+      deliveryMethod: defaultValues?.deliveryMethod ?? "delivery",
       email: defaultValues?.email ?? "",
       createdAfter: formatIsoToDateTimeLocal(defaultValues?.createdAfter),
       createdBefore: formatIsoToDateTimeLocal(defaultValues?.createdBefore),
@@ -108,8 +108,8 @@ export const OrderFilters = ({
   useEffect(() => {
     form.reset({
       orderId: defaultValues?.orderId ?? "",
-      status: defaultValues?.status ?? "",
-      deliveryMethod: defaultValues?.deliveryMethod ?? "",
+      status: defaultValues?.status ?? undefined,
+      deliveryMethod: defaultValues?.deliveryMethod ?? "delivery",
       email: defaultValues?.email ?? "",
       createdAfter: formatIsoToDateTimeLocal(defaultValues?.createdAfter),
       createdBefore: formatIsoToDateTimeLocal(defaultValues?.createdBefore),
@@ -130,8 +130,8 @@ export const OrderFilters = ({
   const handleClear = () => {
     form.reset({
       orderId: "",
-      status: "",
-      deliveryMethod: "",
+      status: undefined,
+      deliveryMethod: "delivery",
       email: "",
       createdAfter: "",
       createdBefore: "",

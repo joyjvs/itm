@@ -62,31 +62,31 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 //   return <>{children}</>;
 // };
 
-const AuthRedirectHandler = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+// const AuthRedirectHandler = () => {
+//   const navigate = useNavigate();
+//   const location = useLocation();
 
-  useEffect(() => {
-    const handleAuthExpired = () => {
-      if (location.pathname !== "/login" && location.pathname !== "/register") {
-        navigate("/login", { replace: true });
-      }
-    };
+//   useEffect(() => {
+//     const handleAuthExpired = () => {
+//       if (location.pathname !== "/login" && location.pathname !== "/register") {
+//         navigate("/login", { replace: true });
+//       }
+//     };
 
-    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+//     window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
 
-    return () => {
-      window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
-    };
-  }, [location.pathname, navigate]);
+//     return () => {
+//       window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+//     };
+//   }, [location.pathname, navigate]);
 
-  return null;
-};
+//   return null;
+// };
 
 function RoutesComponents() {
   return (
     <Router>
-      <AuthRedirectHandler />
+      {/* <AuthRedirectHandler /> */}
       <Routes>
         {/* Rutas Públicas */}
         <Route path="/" element={<HomePage />} />
