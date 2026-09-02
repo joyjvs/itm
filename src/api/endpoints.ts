@@ -55,6 +55,7 @@ export const ENDPOINTS = {
     CREATE: "/api/categories",
     UPDATE: (id: string) => `/api/categories/${id}`,
     DELETE: (id: string) => `/api/categories/${id}`,
+    WITH_PRODUCTS: () => `/api/categories/with-products`,
   },
   PRODUCTS: {
     LIST: "/api/products",

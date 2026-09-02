@@ -15,8 +15,6 @@ import {
 } from "@/components/ui/carousel";
 import { DataStateSkeleton } from "@/components/common/DataStateSkeleton";
 
-const MAX_CATEGORIES = 100;
-
 type ExtendedProduct = Product & {
   image?: string;
   stock?: number;
@@ -145,6 +143,7 @@ const ProductsCarousel = ({ products, badge }: ProductsCarouselProps) => {
                       description={extendedProduct.description}
                       price={extendedProduct.price}
                       image={imageSrc}
+                      year={extendedProduct.year}
                       stock={extendedProduct.stock}
                       oldPrice={extendedProduct.oldPrice}
                       badge={badge}
@@ -179,12 +178,7 @@ const SectionProducts = () => {
       setErrorMessage(null);
 
       try {
-        const categoryResponse = await categoriesService.getAll(
-          1,
-          MAX_CATEGORIES,
-        );
-
-        const nextCategories = categoryResponse.data ?? [];
+        const nextCategories = await categoriesService.getWithProducts();
 
         setCategories(nextCategories);
       } catch {

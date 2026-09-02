@@ -18,6 +18,7 @@ const BannerHome = () => {
       plugins={[
         Autoplay({
           delay: 3500, // 👈 Tiempo entre slides en ms (4 segundos)
+          playOnInit: true,
           stopOnInteraction: false, // 👈 Permite usar flechas y retoma el autoplay
           stopOnMouseEnter: true, // 👈 Pausa cuando el usuario pasa el mouse
         }),

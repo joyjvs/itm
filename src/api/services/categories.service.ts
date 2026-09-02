@@ -98,6 +98,15 @@ export const categoriesService = {
     };
   },
 
+  getWithProducts: async (): Promise<Category[]> => {
+    const response = await apiClient.get(ENDPOINTS.CATEGORIES.WITH_PRODUCTS());
+    const rawData: CategoryApiResponse[] = Array.isArray(response.data)
+      ? response.data
+      : [];
+
+    return rawData.map(normalizeCategory);
+  },
+
   getTree: async (): Promise<Category[]> => {
     const list = await categoriesService.getAll(1, 100);
     return buildCategoryTree(list.data);
