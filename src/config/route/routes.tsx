@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
-  useLocation,
-  useNavigate,
+  // useLocation,
+  // useNavigate,
 } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { AUTH_EXPIRED_EVENT } from "@/utils/authEvents";
+// import { AUTH_EXPIRED_EVENT } from "@/utils/authEvents";
 
 // Páginas de Autenticación
 import RegisterPage from "@/pages/Auth/RegisterPage";
@@ -38,9 +38,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
 
   if (!isAuthenticated) {
+    logout();
     return <Navigate to="/login" replace />;
   }
 
