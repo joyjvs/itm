@@ -1,12 +1,11 @@
 import {
   Carousel,
   CarouselContent,
-  CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { slides } from "../Slides";
+import Slides from "../Slides";
 
 const BannerHome = () => {
   return (
@@ -25,26 +24,7 @@ const BannerHome = () => {
       ]}
     >
       <CarouselContent>
-        {slides.map((src, index) => (
-          <CarouselItem key={index} className="basis-full">
-            <div
-              className="h-96 flex items-center justify-center relative overflow-hidden"
-              style={{
-                backgroundImage: `url('/banners-home/food-pattern.jpg')`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              <div className="absolute inset-0 bg-white/80"></div>
-              <img
-                src={src.image}
-                alt={src.alt}
-                className="relative z-10 h-full w-full object-contain"
-                style={{ mixBlendMode: "darken" }}
-              />
-            </div>
-          </CarouselItem>
-        ))}
+        <Slides />
       </CarouselContent>
       <CarouselPrevious className="left-4" />
       <CarouselNext className="right-4" />
