@@ -39,7 +39,7 @@ const BannerHome = () => {
               <img
                 src={src.image}
                 alt={src.alt}
-                className="relative z-10 w-full h-full object-contain"
+                className="relative z-10 h-full w-full object-contain"
                 style={{ mixBlendMode: "darken" }}
               />
             </div>

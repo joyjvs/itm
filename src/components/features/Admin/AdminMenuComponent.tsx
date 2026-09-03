@@ -41,6 +41,9 @@ export const AdminMenuComponent = () => {
             Productos
             {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/banners-admin")}>
+            Banners
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate("/orders-admin")}>
             Ordenes
             {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}

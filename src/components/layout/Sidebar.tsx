@@ -34,6 +34,7 @@ const Sidebar = () => {
         { href: "/users-admin", label: "Usuarios" },
         { href: "/categories-admin", label: "Categorías" },
         { href: "/products-admin", label: "Productos" },
+        { href: "/banners-admin", label: "Banners" },
         { href: "/orders-admin", label: "Órdenes" },
       ]
     : [];
