@@ -1,13 +1,23 @@
+export interface Role {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  description: string;
+}
+
 export interface User {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
   lastName: string;
   createdAt: string;
   updatedAt: string;
   isActive?: boolean;
   address?: string;
   phone?: string;
+  roles?: Role[];
+  role?: string;
 }
 
 export interface AuthResponse {
@@ -23,8 +33,10 @@ export interface LoginPayload {
 export interface RegisterPayload {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
   lastName: string;
+  address: string;
+  phone: string;
 }
 
 export interface CreateUserPayload {
@@ -35,7 +47,9 @@ export interface CreateUserPayload {
 }
 
 export interface UpdateUserPayload {
-  email?: string;
-  name?: string;
-  lastName?: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  phone: string;
 }

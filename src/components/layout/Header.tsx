@@ -6,6 +6,8 @@ import AccountComponent from "../features/Account/AccountComponent";
 import { Link } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
 import { Badge } from "@/components/ui/badge";
+import { AdminMenuComponent } from "../features/Admin/AdminMenuComponent";
+import { ProductMenuComponent } from "../features/Product/ProductMenuComponent";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -30,29 +32,38 @@ const Header = () => {
             className="h-22 w-auto sm:h-12 md:h-22"
           />
 
-          <Button
-            className="text-blue-950"
-            variant="link"
-            onClick={() => navigate("/")}
-          >
-            Inicio
-          </Button>
+          <div className="hidden md:flex items-center gap-4">
+            <Button
+              className="text-blue-950"
+              variant="link"
+              onClick={() => navigate("/")}
+            >
+              Inicio
+            </Button>
 
-          <Button
-            className="text-blue-950"
-            variant="link"
-            onClick={() => navigate("/products")}
-          >
-            Comprar
-          </Button>
+            {/* <Button
+              className="text-blue-950"
+              variant="link"
+              onClick={() => navigate("/products")}
+            >
+              Comprar
+            </Button> */}
 
-          <Button
-            className="text-blue-950"
-            variant="link"
-            onClick={() => navigate("/about")}
-          >
-            Sobre nostros
-          </Button>
+            <div className="hidden md:block">
+              <ProductMenuComponent />
+            </div>
+            <div className="hidden md:block">
+              <AdminMenuComponent />
+            </div>
+
+            <Button
+              className="text-blue-950"
+              variant="link"
+              onClick={() => navigate("/about")}
+            >
+              Sobre nosotros
+            </Button>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">

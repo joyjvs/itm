@@ -1,10 +1,11 @@
 import axios, {
   type AxiosInstance,
-  AxiosError,
+  // AxiosError,
   type InternalAxiosRequestConfig,
 } from "axios";
 import { API_BASE_URL } from "./endpoints";
-import type { ApiError } from "../types/api.types";
+// import type { ApiError } from "../types/api.types";
+// import { dispatchAuthExpired } from "../utils/authEvents";
 
 const TOKEN_KEY = "auth_token";
 
@@ -29,19 +30,18 @@ axiosClient.interceptors.request.use(
 );
 
 // Interceptor para manejar respuestas
-axiosClient.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<ApiError>) => {
-    if (error.response?.status === 401) {
-      // Token expirado o inválido
-      localStorage.removeItem(TOKEN_KEY);
-      window.location.href = "/";
-    }
+// axiosClient.interceptors.response.use(
+//   (response) => response,
+//   (error: AxiosError<ApiError>) => {
+//     if (error.response?.status === 401) {
+//       localStorage.removeItem(TOKEN_KEY);
+//       dispatchAuthExpired();
+//     }
 
-    // Retornar el error para que lo maneje quien haga la llamada
-    return Promise.reject(error.response?.data || error);
-  },
-);
+//     // Retornar el error para que lo maneje quien haga la llamada
+//     return Promise.reject(error.response?.data || error);
+//   },
+// );
 
 export const setAuthToken = (token: string) => {
   localStorage.setItem(TOKEN_KEY, token);

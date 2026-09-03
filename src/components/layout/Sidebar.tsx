@@ -1,17 +1,48 @@
-import { Link, useLocation } from "react-router-dom";
-import { FolderOpen, Users, X } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 import { useUIStore } from "../../store/uiStore";
+import { useAuth } from "@/hooks/useAuth";
 import Button from "../common/Button";
 import cn from "../../utils/cn";
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
+  const { user, isAuthenticated, logout } = useAuth();
 
-  const links = [
-    { href: "/projects", label: "Proyectos", icon: FolderOpen },
-    { href: "/users", label: "Usuarios", icon: Users },
+  const navLinks = [
+    { href: "/", label: "Inicio" },
+    { href: "/products", label: "Productos Minoristas" },
+    { href: "/products/true", label: "Productos Mayoristas" },
+    { href: "/about", label: "Sobre nosotros" },
   ];
+
+  const accountLinks = isAuthenticated
+    ? [
+        { href: "/profile", label: "Perfil" },
+        { href: `/me/orders/${user?.id}`, label: "Mis pedidos" },
+        { href: "/change-password", label: "Cambiar contraseña" },
+      ]
+    : [
+        { href: "/login", label: "Acceder" },
+        { href: "/register", label: "Crear cuenta" },
+      ];
+
+  const adminLinks = user?.role?.includes("admin")
+    ? [
+        { href: "/users-admin", label: "Usuarios" },
+        { href: "/categories-admin", label: "Categorías" },
+        { href: "/products-admin", label: "Productos" },
+        { href: "/banners-admin", label: "Banners" },
+        { href: "/orders-admin", label: "Órdenes" },
+      ]
+    : [];
+
+  const handleNavigation = (href: string) => {
+    setSidebarOpen(false);
+    navigate(href);
+  };
 
   return (
     <>
@@ -26,37 +57,112 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-16 z-50 h-[calc(100vh-64px)] w-64 border-r border-input bg-background transition-transform duration-300 md:relative md:top-0 md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 w-72 border-r border-input bg-background shadow-xl transition-transform duration-300 md:hidden",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <nav className="space-y-2 p-4">
-          {links.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              to={href}
-              onClick={() => setSidebarOpen(false)}
-              className={cn(
-                "flex items-center gap-3 px-4 py-2 rounded-md transition-colors",
-                location.pathname === href
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground hover:bg-muted",
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              <span className="font-medium">{label}</span>
-            </Link>
-          ))}
-        </nav>
+        <div className="flex h-full flex-col">
+          {/* Encabezado fijo */}
+          <div className="flex shrink-0 items-center justify-between border-b border-input p-4">
+            <div>
+              <p className="text-lg font-semibold text-slate-900">IberoMax</p>
+              <p className="text-sm text-slate-500">Navegación</p>
+            </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setSidebarOpen(false)}
-          className="absolute top-4 right-4 md:hidden"
-        >
-          <X className="h-5 w-5" />
-        </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(false)}
+              className="text-slate-700"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Contenido con scroll */}
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4">
+            <nav className="space-y-1">
+              {navLinks.map(({ href, label }) => (
+                <button
+                  key={href}
+                  type="button"
+                  onClick={() => handleNavigation(href)}
+                  className={cn(
+                    "w-full text-left rounded-lg px-4 py-3 transition-colors",
+                    location.pathname === href
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground hover:bg-muted",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+
+            <div className="mt-6 border-t border-input pt-6">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Cuenta
+              </p>
+
+              <nav className="space-y-1">
+                {accountLinks.map(({ href, label }) => (
+                  <button
+                    key={href}
+                    type="button"
+                    onClick={() => handleNavigation(href)}
+                    className={cn(
+                      "w-full text-left rounded-lg px-4 py-3 transition-colors",
+                      location.pathname === href
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-muted",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+
+                {isAuthenticated && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSidebarOpen(false);
+                      logout();
+                    }}
+                    className="w-full text-left rounded-lg px-4 py-3 text-foreground transition-colors hover:bg-muted"
+                  >
+                    Cerrar sesión
+                  </button>
+                )}
+              </nav>
+            </div>
+
+            {adminLinks.length > 0 && (
+              <div className="mt-6 border-t border-input pt-6">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  Administración
+                </p>
+
+                <nav className="space-y-1">
+                  {adminLinks.map(({ href, label }) => (
+                    <button
+                      key={href}
+                      type="button"
+                      onClick={() => handleNavigation(href)}
+                      className={cn(
+                        "w-full text-left rounded-lg px-4 py-3 transition-colors",
+                        location.pathname === href
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground hover:bg-muted",
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            )}
+          </div>
+        </div>
       </aside>
     </>
   );

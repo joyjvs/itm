@@ -1,118 +1,160 @@
-import { Order } from "../../types/order.types";
+import axiosClient from "../client";
+import { ENDPOINTS } from "../endpoints";
+import type {
+  Order,
+  CreateOrderPayload,
+  BackendOrderStatus,
+  OrderFilters,
+  OrderStatus,
+} from "../../types/order.types";
+import type { PaginatedResponse } from "@/types/pagination.types";
 
-// Datos mock de órdenes
-const mockOrders: Order[] = [
-  {
-    id: "ord_001",
-    userId: "1",
-    items: [
-      {
-        productId: "1",
-        name: "Caramelo Step Caramelo",
-        price: 15.99,
-        quantity: 2,
-        image: "/images/caramelo1.jpg",
-      },
-      {
-        productId: "2",
-        name: "Chocolate Amargo",
-        price: 12.5,
-        quantity: 1,
-        image: "/images/chocolate.jpg",
-      },
-    ],
-    totalAmount: 44.48,
-    status: "delivered",
-    createdAt: new Date("2025-01-10T10:30:00").toISOString(),
-    updatedAt: new Date("2025-01-12T14:20:00").toISOString(),
-    shippingAddress: "Av. Principal 123, Ciudad",
-    paymentMethod: "Tarjeta de crédito",
-    trackingNumber: "TRK123456789",
-  },
-  {
-    id: "ord_002",
-    userId: "1",
-    items: [
-      {
-        productId: "3",
-        name: "Miel de Abella",
-        price: 8.99,
-        quantity: 3,
-        image: "/images/miel.jpg",
-      },
-    ],
-    totalAmount: 26.97,
-    status: "shipped",
-    createdAt: new Date("2025-02-20T09:15:00").toISOString(),
-    updatedAt: new Date("2025-02-21T16:45:00").toISOString(),
-    shippingAddress: "Av. Principal 123, Ciudad",
-    paymentMethod: "PayPal",
-    trackingNumber: "TRK987654321",
-  },
-  {
-    id: "ord_003",
-    userId: "1",
-    items: [
-      {
-        productId: "4",
-        name: "Galletas Integrales",
-        price: 5.49,
-        quantity: 5,
-        image: "/images/galletas.jpg",
-      },
-    ],
-    totalAmount: 27.45,
-    status: "pending",
-    createdAt: new Date("2025-03-05T11:00:00").toISOString(),
-    updatedAt: new Date("2025-03-05T11:00:00").toISOString(),
-    shippingAddress: "Av. Principal 123, Ciudad",
-    paymentMethod: "Transferencia bancaria",
-    trackingNumber: undefined,
-  },
-];
+const normalizeOrdersResponse = (payload: unknown): Order[] => {
+  if (Array.isArray(payload)) return payload as Order[];
+
+  if (payload && typeof payload === "object") {
+    if ("data" in payload) {
+      const data = (payload as { data?: unknown }).data;
+      return Array.isArray(data) ? (data as Order[]) : [];
+    }
+
+    if ("orders" in payload) {
+      const orders = (payload as { orders?: unknown }).orders;
+      return Array.isArray(orders) ? (orders as Order[]) : [];
+    }
+  }
+
+  return [];
+};
+
+const normalizeSingleOrderResponse = (payload: unknown): Order | null => {
+  if (!payload || typeof payload !== "object") return null;
+
+  if ("data" in payload) {
+    const data = (payload as { data?: unknown }).data;
+    return data && typeof data === "object"
+      ? normalizeOrder(data as Order)
+      : null;
+  }
+
+  return normalizeOrder(payload as Order);
+};
+
+const normalizeOrder = (order: Order): Order => ({
+  ...order,
+  status: normalizeOrderStatus(order.status),
+});
+
+const normalizeOrderStatus = (
+  status: string | undefined | null,
+): BackendOrderStatus => {
+  const normalized = status?.toLowerCase();
+
+  switch (normalized) {
+    case "confirmed":
+    case "processing":
+      return "confirmed";
+    case "preparing":
+      return "preparing";
+    case "ready_for_pickup":
+      return "ready_for_pickup";
+    case "shipped":
+      return "shipped";
+    case "delivered":
+      return "delivered";
+    case "cancelled":
+      return "cancelled";
+    case "pending":
+    default:
+      return "pending";
+  }
+};
 
 export const orderService = {
-  getOrdersByUserId: async (userId: string): Promise<Order[]> => {
-    // TODO: Reemplazar con llamada real a la API
-    // const response = await apiClient.get(ENDPOINTS.ORDERS.LIST, { params: { userId } });
-    // return response.data;
-    return mockOrders.filter((order) => order.userId === userId);
-  },
-
-  getOrderById: async (orderId: string): Promise<Order | null> => {
-    // TODO: Reemplazar con llamada real
-    const order = mockOrders.find((o) => o.id === orderId);
-    return order || null;
-  },
-
-  // Para simular creación de orden (no se usa aquí, pero puede ser útil)
-  createOrder: async (
-    orderData: Omit<Order, "id" | "createdAt" | "updatedAt">,
-  ): Promise<Order> => {
-    // Simulación
-    const newOrder: Order = {
-      ...orderData,
-      id: `ord_${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+  getOrders: async (
+    userId: string,
+    isAdmin = false,
+    page = 1,
+    limit = 10,
+    filters?: OrderFilters,
+  ): Promise<PaginatedResponse<Order>> => {
+    const params = {
+      page,
+      limit,
+      ...(filters ?? {}),
     };
-    mockOrders.push(newOrder);
-    return newOrder;
+
+    const queryParams = Object.fromEntries(
+      Object.entries(params).filter(
+        ([, value]) => value !== undefined && value !== null && value !== "",
+      ),
+    );
+
+    const response = await axiosClient.get(
+      isAdmin ? ENDPOINTS.ORDERS.LIST : ENDPOINTS.ORDERS.MY_ORDERS(userId),
+      {
+        params: queryParams,
+      },
+    );
+
+    const rawData = normalizeOrdersResponse(response.data);
+    const pagination = response.data?.pagination || response.data?.meta || {};
+
+    return {
+      data: rawData.map((order) => normalizeOrder(order)),
+      meta: {
+        currentPage: pagination.page ?? page,
+        itemsPerPage: pagination.limit ?? limit,
+        totalItems: pagination.total ?? rawData.length,
+        totalPages: pagination.totalPages ?? 1,
+        hasNextPage: pagination.hasNext ?? false,
+        hasPrevPage: pagination.hasPrev ?? false,
+      },
+    };
   },
 
-  cancelOrder: async (orderId: string): Promise<Order> => {
-    // TODO: Llamada real
-    // const response = await apiClient.patch(ENDPOINTS.ORDERS.CANCEL(orderId));
-    // return response.data;
-    const order = mockOrders.find((o) => o.id === orderId);
-    if (!order) throw new Error("Orden no encontrada");
-    if (order.status !== "pending" && order.status !== "processing") {
-      throw new Error(
-        "Solo se pueden cancelar órdenes en estado pendiente o procesando",
-      );
-    }
-    order.status = "cancelled";
-    order.updatedAt = new Date().toISOString();
-    return order;
+  getOrderById: async (
+    orderId: string,
+    userId?: string,
+    isAdmin = false,
+  ): Promise<Order | null> => {
+    const url =
+      isAdmin || !userId
+        ? ENDPOINTS.ORDERS.DETAIL(orderId)
+        : ENDPOINTS.ORDERS.MY_ORDER(orderId, userId);
+
+    const response = await axiosClient.get(url);
+    return normalizeSingleOrderResponse(response.data);
+  },
+
+  createOrder: async (
+    orderData: CreateOrderPayload,
+    userId: string,
+  ): Promise<Order> => {
+    const response = await axiosClient.post(ENDPOINTS.ORDERS.CREATE(userId), {
+      ...orderData,
+    });
+    return normalizeOrder(response.data as Order);
+  },
+
+  updateOrderStatus: async (
+    orderId: string,
+    status: OrderStatus,
+  ): Promise<Order> => {
+    const normalizedStatus = normalizeOrderStatus(status);
+    const response = await axiosClient.patch(
+      ENDPOINTS.ORDERS.UPDATE_STATUS(orderId),
+      {
+        status: normalizedStatus,
+      },
+    );
+    return normalizeOrder(response.data as Order);
+  },
+
+  cancelOrder: async (orderId: string, userId?: string): Promise<Order> => {
+    const response = await axiosClient.patch(
+      ENDPOINTS.ORDERS.CANCEL(orderId, userId),
+    );
+    return normalizeOrder(response.data as Order);
   },
 };

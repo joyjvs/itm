@@ -34,7 +34,7 @@ const UserForm = ({ user, onSuccess }: UserFormProps) => {
     resolver: zodResolver(isEditing ? updateUserSchema : createUserSchema),
     defaultValues: user
       ? {
-          name: user.name,
+          name: user.firstName,
           lastName: user.lastName,
           email: user.email,
         }
@@ -44,7 +44,7 @@ const UserForm = ({ user, onSuccess }: UserFormProps) => {
   useEffect(() => {
     if (user) {
       reset({
-        name: user.name,
+        name: user.firstName,
         lastName: user.lastName,
         email: user.email,
       });
@@ -59,9 +59,11 @@ const UserForm = ({ user, onSuccess }: UserFormProps) => {
       if (isEditing && user) {
         const updateData = data as UpdateUserFormData;
         await usersService.update(user.id, {
-          name: updateData.name,
+          firstName: updateData.name,
           lastName: updateData.lastName,
           email: updateData.email,
+          address: "",
+          phone: ""
         });
       } else {
         await usersService.create(data as CreateUserFormData);

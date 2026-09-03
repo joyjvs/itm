@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import AppToaster from "./components/common/AppToaster";
 import "./index.css";
 import "./App.css";
 
@@ -12,6 +13,9 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <App />
+    <>
+      <App />
+      <AppToaster />
+    </>
   </React.StrictMode>,
 );

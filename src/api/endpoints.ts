@@ -1,3 +1,5 @@
+import { Pagination } from "@/types/pagination";
+
 // URLs base y endpoints de la API
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -7,6 +9,8 @@ export const ENDPOINTS = {
   AUTH: {
     LOGIN: "/api/auth/login",
     REGISTER: "/api/auth/register",
+    CHANGE_PASSWORD: (id: string) => `/api/auth/change-password/${id}`,
+    UPDATE_PROFILE: (id: string) => `/api/auth/profile/${id}`,
   },
 
   // Projects
@@ -36,10 +40,55 @@ export const ENDPOINTS = {
 
   // Users
   USERS: {
-    LIST: "/api/users",
+    LIST: (pagination: Pagination) =>
+      `/api/users?limit=${pagination.limit}&page=${pagination.page}`,
     DETAIL: (id: string) => `/api/users/${id}`,
     CREATE: "/api/users",
     UPDATE: (id: string) => `/api/users/${id}`,
     DELETE: (id: string) => `/api/users/${id}`,
+  },
+
+  CATEGORIES: {
+    LIST: "/api/categories",
+    TREE: "/api/categories",
+    DETAIL: (id: string) => `/api/categories/${id}`,
+    CREATE: "/api/categories",
+    UPDATE: (id: string) => `/api/categories/${id}`,
+    DELETE: (id: string) => `/api/categories/${id}`,
+    WITH_PRODUCTS: () => `/api/categories/with-products`,
+  },
+  PRODUCTS: {
+    LIST: "/api/products",
+    DETAIL: (id: string) => `/api/products/${id}`,
+    CREATE: "/api/products",
+    UPDATE: (id: string) => `/api/products/${id}`,
+    DELETE: (id: string) => `/api/products/${id}`,
+  },
+  BANNERS: {
+    LIST: "/api/banners",
+    DETAIL: (id: string) => `/api/banners/${id}`,
+    CREATE: "/api/banners",
+    UPDATE: (id: string) => `/api/banners/${id}`,
+    DELETE: (id: string) => `/api/banners/${id}`,
+  },
+  UPLOAD: {
+    IMAGE: "/api/upload/image",
+  },
+  // Orders
+  ORDERS: {
+    LIST: "/api/orders",
+    MY_ORDERS: (userId: string) => `/api/orders/me/${userId}`,
+    DETAIL: (id: string) => `/api/orders/${id}`,
+    MY_ORDER: (id: string, userId: string) => `/api/orders/me/${id}/${userId}`,
+    CREATE: (userId: string) => `/api/orders/${userId}`,
+    UPDATE_STATUS: (id: string) => `/api/orders/${id}/status`,
+    CANCEL: (id: string, userId?: string) =>
+      userId
+        ? `/api/orders/me/${id}/${userId}/cancel`
+        : `/api/orders/${id}/cancel`,
+  },
+  // Payments
+  PAYMENTS: {
+    CREDIT_CARD: "/api/payments/credit-card",
   },
 };

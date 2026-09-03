@@ -1,4 +1,3 @@
-// src/store/productStore.ts
 import { create } from "zustand";
 import { productsService } from "@/api/services/product.service";
 import type {
@@ -7,9 +6,9 @@ import type {
   ProductsResponse,
 } from "../types/product.types";
 import type { PaginationMeta } from "../types/pagination.types";
+import { showError, showSuccess } from "../utils/toast";
 
 interface ProductState {
-  // Estado
   products: Product[];
   selectedProduct: Product | null;
   isLoading: boolean;
@@ -17,9 +16,11 @@ interface ProductState {
   pagination: PaginationMeta;
   filters: ProductFilters;
 
-  // Acciones
   fetchProducts: (page?: number, limit?: number) => Promise<void>;
   fetchProductById: (id: string) => Promise<Product>;
+  createProduct: (payload: FormData) => Promise<void>;
+  updateProduct: (id: string, payload: FormData) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   setFilters: (filters: Partial<ProductFilters>) => void;
   clearFilters: () => void;
   setPage: (page: number) => void;
@@ -29,15 +30,15 @@ interface ProductState {
 
 const defaultFilters: ProductFilters = {
   search: "",
-  category: "",
+  categoryId: undefined,
   minPrice: undefined,
   maxPrice: undefined,
-  sortBy: "createdAt",
-  sortOrder: "desc",
+  isWholesale: undefined,
+  //sortBy: "createdAt",
+  //sortOrder: "desc",
 };
 
 export const useProductStore = create<ProductState>((set, get) => ({
-  // Estado inicial
   products: [],
   selectedProduct: null,
   isLoading: false,
@@ -52,16 +53,18 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
   filters: { ...defaultFilters },
 
-  // --- Acciones ---
-  fetchProducts: async (page = 1, limit = 10) => {
-    const { filters } = get();
+  fetchProducts: async (page?: number, limit?: number) => {
+    const { pagination, filters } = get();
+    const targetPage = page ?? pagination.currentPage;
+    const targetLimit = limit ?? pagination.itemsPerPage;
+
     set({ isLoading: true, error: null });
 
     try {
       const response: ProductsResponse = await productsService.getAll(
+        targetPage,
+        targetLimit,
         filters,
-        page,
-        limit,
       );
       set({
         products: response.data,
@@ -91,20 +94,98 @@ export const useProductStore = create<ProductState>((set, get) => ({
     }
   },
 
+  createProduct: async (payload) => {
+    set({ isLoading: true, error: null });
+    try {
+      await productsService.create(payload);
+      await get().fetchProducts(1, get().pagination.itemsPerPage);
+      showSuccess("Producto creado", "El producto se registró correctamente.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Error al crear producto";
+      set({
+        error: message,
+        isLoading: false,
+      });
+      showError("No se pudo crear el producto", message);
+      throw error;
+    }
+  },
+
+  updateProduct: async (id, payload) => {
+    set({ isLoading: true, error: null });
+    try {
+      await productsService.update(id, payload);
+      await get().fetchProducts(
+        get().pagination.currentPage,
+        get().pagination.itemsPerPage,
+      );
+      showSuccess(
+        "Producto actualizado",
+        "Los cambios se guardaron correctamente.",
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Error al actualizar producto";
+      set({
+        error: message,
+        isLoading: false,
+      });
+      showError("No se pudo actualizar el producto", message);
+      throw error;
+    }
+  },
+
+  deleteProduct: async (id) => {
+    set({ isLoading: true, error: null });
+    try {
+      await productsService.delete(id);
+      await get().fetchProducts(
+        get().pagination.currentPage,
+        get().pagination.itemsPerPage,
+      );
+      showSuccess(
+        "Producto eliminado",
+        "El producto se eliminó correctamente.",
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Error al eliminar producto";
+      set({
+        error: message,
+        isLoading: false,
+      });
+      showError("No se pudo eliminar el producto", message);
+      throw error;
+    }
+  },
+
   setFilters: (newFilters: Partial<ProductFilters>) => {
-    set((state) => ({
-      filters: { ...state.filters, ...newFilters },
-      // Reiniciamos a la primera página al cambiar filtros
-      pagination: { ...state.pagination, currentPage: 1 },
-    }));
-    // Disparamos una nueva búsqueda con los filtros actualizados
-    const { filters, pagination } = get();
+    set((state) => {
+      const mergedFilters: ProductFilters = {
+        ...state.filters,
+        ...newFilters,
+      };
+
+      const cleanedFilters = Object.fromEntries(
+        Object.entries(mergedFilters).filter(
+          ([, value]) => value !== undefined && value !== "",
+        ),
+      ) as ProductFilters;
+
+      return {
+        filters: cleanedFilters,
+        pagination: { ...state.pagination, currentPage: 1 },
+      };
+    });
+
+    const { pagination } = get();
     get().fetchProducts(pagination.currentPage, pagination.itemsPerPage);
   },
 
   clearFilters: () => {
-    set({ filters: { ...defaultFilters } });
-    // Refrescamos la lista con los filtros por defecto
+    const currentWholesale = get().filters.isWholesale;
+    set({ filters: { ...defaultFilters, isWholesale: currentWholesale } });
     const { pagination } = get();
     get().fetchProducts(pagination.currentPage, pagination.itemsPerPage);
   },

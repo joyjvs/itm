@@ -1,4 +1,3 @@
-// src/pages/Products/ProductDetail.tsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
@@ -6,10 +5,14 @@ import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+
+const toNumber = (value: number | string | null | undefined) => {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,20 +24,15 @@ const ProductDetail = () => {
     fetchProductById,
     clearError,
   } = useProducts();
-
-  // Estado local para la cantidad
   const [quantity, setQuantity] = useState(1);
-
   const { addItem } = useCart();
 
-  // Cargar el producto al montar o cuando cambie el id
   useEffect(() => {
     if (id) {
       fetchProductById(id);
     }
   }, [id, fetchProductById]);
 
-  // Manejar cantidad
   const increment = () => {
     if (product && quantity < product.stock) {
       setQuantity(quantity + 1);
@@ -56,23 +54,22 @@ const ProductDetail = () => {
     }
   };
 
-  // Agregar al carrito (pendiente de implementar)
   const handleAddToCart = () => {
     if (product) {
-      // TODO: Llamar al store del carrito
-      console.log(`Agregar ${quantity} de ${product.name} al carrito`);
-      addItem(product, quantity);
-      // Podrías redirigir al carrito o mostrar un toast
+      const item = {
+        ...product,
+        price: toNumber(product.price), // 👈 garantiza number
+        image: product.image ?? product.images?.[0] ?? "",
+      };
+      addItem(item, quantity);
     }
   };
 
-  // Reintentar en caso de error
   const handleRetry = () => {
     clearError();
     if (id) fetchProductById(id);
   };
 
-  // Estado de carga
   if (isLoading) {
     return (
       <MainLayout>
@@ -98,7 +95,6 @@ const ProductDetail = () => {
     );
   }
 
-  // Estado de error
   if (error) {
     return (
       <MainLayout>
@@ -119,7 +115,6 @@ const ProductDetail = () => {
     );
   }
 
-  // Si no hay producto (después de carga sin error)
   if (!product) {
     return (
       <MainLayout>
@@ -133,11 +128,21 @@ const ProductDetail = () => {
     );
   }
 
+  const productImage =
+    product.image ??
+    product.images?.[0] ??
+    "https://picsum.photos/seed/fallback/600/600";
+  const categoryLabel =
+    typeof product.category === "string"
+      ? product.category
+      : (product.category?.name ?? "Sin categoría");
+  
+  const normalizedPrice = toNumber(product.price);
+
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto">
-          {/* Navegación */}
           <div className="flex items-center gap-2 mb-6">
             <Button
               variant="ghost"
@@ -150,12 +155,10 @@ const ProductDetail = () => {
             </Button>
           </div>
 
-          {/* Grid de detalle */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Imagen del producto */}
             <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img
-                src={product.image}
+                src={productImage}
                 alt={product.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -163,7 +166,6 @@ const ProductDetail = () => {
                     "https://picsum.photos/seed/fallback/600/600";
                 }}
               />
-              {/* Sello "Since" si existe */}
               {product.year && (
                 <div className="absolute top-4 right-4 flex flex-col items-center justify-center w-16 h-16 rounded-full bg-white/90 shadow-md border-2 border-amber-600 text-center">
                   <span className="text-[8px] font-bold text-amber-700 uppercase leading-tight">
@@ -176,7 +178,6 @@ const ProductDetail = () => {
               )}
             </div>
 
-            {/* Información del producto */}
             <div className="flex flex-col justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-blue-950 uppercase mb-2">
@@ -187,7 +188,7 @@ const ProductDetail = () => {
                     variant="secondary"
                     className="bg-blue-100 text-blue-700"
                   >
-                    {product.category}
+                    {categoryLabel}
                   </Badge>
                   <Badge
                     variant={product.stock > 0 ? "default" : "destructive"}
@@ -205,11 +206,10 @@ const ProductDetail = () => {
 
                 <div className="flex items-baseline gap-4 mb-6">
                   <span className="text-4xl font-bold text-blue-600">
-                    ${product.price.toFixed(2)}
+                    ${normalizedPrice.toFixed(2)}
                   </span>
                 </div>
 
-                {/* Detalles adicionales */}
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <dl className="grid grid-cols-1 gap-2 text-sm">
                     <div className="flex justify-between">
@@ -219,17 +219,9 @@ const ProductDetail = () => {
                     <div className="flex justify-between">
                       <dt className="text-gray-500 font-medium">Categoría</dt>
                       <dd className="text-gray-900 capitalize">
-                        {product.category}
+                        {categoryLabel}
                       </dd>
                     </div>
-                    {product.year && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500 font-medium">
-                          Año de fundación
-                        </dt>
-                        <dd className="text-gray-900">{product.year}</dd>
-                      </div>
-                    )}
                     <div className="flex justify-between">
                       <dt className="text-gray-500 font-medium">
                         Stock disponible
@@ -242,7 +234,6 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              {/* Controles de cantidad y botón agregar */}
               <div className="border-t border-gray-200 pt-4 mt-4">
                 <div className="flex flex-col sm:flex-row items-stretch gap-4">
                   <div className="flex items-center gap-2">
@@ -264,8 +255,7 @@ const ProductDetail = () => {
                         max={product.stock}
                         value={quantity}
                         onChange={handleQuantityChange}
-                        className="w-14 h-9 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        aria-label="Cantidad"
+                        className="w-20 text-center"
                       />
                       <Button
                         type="button"
@@ -273,38 +263,23 @@ const ProductDetail = () => {
                         size="icon"
                         className="h-9 w-9 rounded-full"
                         onClick={increment}
-                        disabled={
-                          quantity >= product.stock || product.stock === 0
-                        }
+                        disabled={product.stock === 0}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
+
                   <Button
                     onClick={handleAddToCart}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                     disabled={product.stock === 0}
+                    className="w-full"
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    {product.stock > 0 ? "Agregar al carrito" : "Agotado"}
+                    Agregar al carrito
                   </Button>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Sección de productos relacionados (opcional) */}
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold text-blue-950 mb-6">
-              Productos relacionados
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {/* Aquí podrías mostrar otros productos de la misma categoría */}
-              {/* Por ahora, un placeholder */}
-              <p className="text-gray-500 col-span-full text-center">
-                Próximamente más productos relacionados
-              </p>
             </div>
           </div>
         </div>

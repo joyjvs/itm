@@ -4,8 +4,11 @@ import {
   Routes,
   Route,
   Navigate,
+  // useLocation,
+  // useNavigate,
 } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+// import { AUTH_EXPIRED_EVENT } from "@/utils/authEvents";
 
 // Páginas de Autenticación
 import RegisterPage from "@/pages/Auth/RegisterPage";
@@ -13,7 +16,6 @@ import LoginPage from "@/pages/Auth/LoginPage";
 import ProfilePage from "@/pages/Auth/Profile";
 
 // Páginas Principales
-import UsersPage from "@/pages/Users/UsersPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import HomePage from "@/pages/Home/HomePage";
 
@@ -24,6 +26,12 @@ import CartPage from "@/pages/Cart/CartPage";
 import ChangePasswordPage from "@/pages/Auth/ChangePasswordPage";
 import OrdersPage from "@/pages/Orders/OrdersPage";
 import OrderDetailPage from "@/pages/Orders/OrderDetailPage";
+import { ProductsPage } from "@/pages/Admin/Product/Products";
+import { UsersPageAdmin } from "@/pages/Admin/User/Users";
+import { OrdersPageAdmin } from "@/pages/Admin/Orders";
+import CategoriesPage from "@/pages/Admin/Category/Categories";
+import BannersPage from "@/pages/Admin/Banners";
+import MyOrdersPage from "@/pages/Auth/MyOrders";
 
 // Componente para proteger rutas
 interface ProtectedRouteProps {
@@ -31,9 +39,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
 
   if (!isAuthenticated) {
+    logout();
     return <Navigate to="/login" replace />;
   }
 
@@ -41,89 +50,66 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 };
 
 // Componente para rutas públicas (redirige si está autenticado)
-interface PublicRouteProps {
-  children: React.ReactNode;
-}
+// interface PublicRouteProps {
+//   children: React.ReactNode;
+// }
 
-const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+// const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
+//   const { isAuthenticated } = useAuth();
 
-  if (isAuthenticated) {
-    return <Navigate to="/products" replace />;
-  }
+//   if (isAuthenticated) {
+//     return <Navigate to="/" replace />;
+//   }
 
-  return <>{children}</>;
-};
+//   return <>{children}</>;
+// };
+
+// const AuthRedirectHandler = () => {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     const handleAuthExpired = () => {
+//       if (location.pathname !== "/login" && location.pathname !== "/register") {
+//         navigate("/login", { replace: true });
+//       }
+//     };
+
+//     window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+
+//     return () => {
+//       window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+//     };
+//   }, [location.pathname, navigate]);
+
+//   return null;
+// };
 
 function RoutesComponents() {
   return (
     <Router>
+      {/* <AuthRedirectHandler /> */}
       <Routes>
         {/* Rutas Públicas */}
         <Route path="/" element={<HomePage />} />
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <PublicRoute>
-              <RegisterPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/products"
-          element={
-            <PublicRoute>
-              <AllProducts />
-            </PublicRoute>
-          }
-        />
-
-        <Route
-          path="/product/:id"
-          element={
-            <PublicRoute>
-              <ProductDetails />
-            </PublicRoute>
-          }
-        />
-
-        <Route
-          path="/about"
-          element={
-            <PublicRoute>
-              <About />
-            </PublicRoute>
-          }
-        />
-
-        <Route
-          path="/cart"
-          element={
-            <PublicRoute>
-              <CartPage />
-            </PublicRoute>
-          }
-        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/products/:isWholesale?" element={<AllProducts />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/cart" element={<CartPage />} />
 
         {/* Rutas Protegidas */}
-        <Route
+        {/* <Route
           path="/users"
           element={
             <ProtectedRoute>
               <UsersPage />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
-          path="/changePassword"
+          path="/change-password"
           element={
             <ProtectedRoute>
               <ChangePasswordPage />
@@ -154,6 +140,61 @@ function RoutesComponents() {
           element={
             <ProtectedRoute>
               <OrderDetailPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/me/orders/:id"
+          element={
+            <ProtectedRoute>
+              <MyOrdersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/*Rutas para usuarios administradores de la tienda  */}
+        <Route
+          path="/categories-admin"
+          element={
+            <ProtectedRoute>
+              <CategoriesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/products-admin"
+          element={
+            <ProtectedRoute>
+              <ProductsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/orders-admin"
+          element={
+            <ProtectedRoute>
+              <OrdersPageAdmin />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/banners-admin"
+          element={
+            <ProtectedRoute>
+              <BannersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/users-admin"
+          element={
+            <ProtectedRoute>
+              <UsersPageAdmin />
             </ProtectedRoute>
           }
         />

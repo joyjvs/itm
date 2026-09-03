@@ -1,6 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { useCart } from "@/hooks/useCart";
+import { useOrders } from "@/hooks/useOrders";
+import { useAuth } from "@/hooks/useAuth";
+import { usePayment } from "@/hooks/usePayment";
+import {  useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,6 +21,10 @@ import {
   ArrowLeft,
   CreditCard,
 } from "lucide-react";
+import { CreateOrderPayload, DeliveryMethod } from "@/types/order.types";
+import { showError } from "@/utils/toast";
+import { CreatePaymentPayload } from "@/types/payment.types";
+import ProcessingPaymentOverlay from "@/components/features/ProcessingPaymentOverlay";
 
 const CartPage = () => {
   const {
@@ -27,6 +35,22 @@ const CartPage = () => {
     removeItem,
     clearCart,
   } = useCart();
+
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(
+    DeliveryMethod.PICKUP,
+  );
+
+  const normalizeCartPrice = (price: number | string) => {
+    const value = typeof price === "number" ? price : Number(price);
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  const { createOrder } = useOrders();
+  const { user } = useAuth();
+  const { createPayment } = usePayment();
+  const navigate = useNavigate();
+  const [isCreating, setIsCreating] = useState(false);
+  const redirectingRef = useRef(false);
 
   if (items.length === 0) {
     return (
@@ -49,8 +73,74 @@ const CartPage = () => {
     );
   }
 
+  const create = async () => {
+    if (!user) return navigate("/auth/login");
+    if (!user.address || user.address.length < 10) {
+      // pedir al usuario que complete su dirección
+      return navigate("/auth/profile");
+    }
+    if (items.length === 0) {
+      showError("Carrito vacío", "Agrega al menos un producto para continuar.");
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const payload: CreateOrderPayload = {
+        items: items.map((i) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+        })),
+        deliveryMethod: deliveryMethod,
+        deliveryAddress: user.address || "",
+      };
+
+      const order = await createOrder(payload, user.id);
+      const orderUrl = `https://iberoshop.com/order/${order.id}`;
+      const paymentPayload: CreatePaymentPayload = {
+        amount: Number(totalPrice.toFixed(2)),
+        currency: "EUR",
+        identifier: order.id,
+        customerEmail: user.email,
+        customerName:
+          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+          user.email,
+        customerPhone: user.phone || "",
+        lang: "PT",
+        successUrl: orderUrl,
+        failUrl: orderUrl,
+        backUrl: orderUrl,
+        notify: false,
+        failOver: false,
+        userId: user.id,
+      };
+
+      const payment = await createPayment(paymentPayload);
+
+      clearCart();
+
+      const redirectUrl = payment.redirectUrl || payment.paymentUrl;
+      redirectingRef.current = true;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+        return;
+      }
+
+      navigate(`/order/${order.id}`);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo procesar el pago";
+      showError("No se pudo procesar el pago", message);
+      console.error("Error procesando pago", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   return (
     <MainLayout>
+      {isCreating && <ProcessingPaymentOverlay />}
+
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-6">
           <Link to="/products">
@@ -84,7 +174,7 @@ const CartPage = () => {
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800">{item.name}</h3>
                     <p className="text-blue-950 font-bold">
-                      ${item.price.toFixed(2)}
+                      ${normalizeCartPrice(item.price).toFixed(2)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -116,7 +206,10 @@ const CartPage = () => {
                   </div>
                   <div className="text-right min-w-[80px]">
                     <p className="font-bold text-gray-800">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      $
+                      {(normalizeCartPrice(item.price) * item.quantity).toFixed(
+                        2,
+                      )}
                     </p>
                     <Button
                       variant="ghost"
@@ -159,11 +252,34 @@ const CartPage = () => {
                     </span>
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-600">
+                    Método de entrega
+                  </label>
+                  <select
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={deliveryMethod}
+                    onChange={(e) =>
+                      setDeliveryMethod(e.target.value as DeliveryMethod)
+                    }
+                  >
+                    <option value={DeliveryMethod.PICKUP}>
+                      Recogida en tienda
+                    </option>
+                    <option value={DeliveryMethod.DELIVERY}>
+                      Entrega a domicilio
+                    </option>
+                  </select>
+                </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-2">
-                <Button className="w-full bg-blue-950 hover:bg-blue-700">
+                <Button
+                  className="w-full bg-blue-950 hover:bg-blue-700"
+                  onClick={() => create()}
+                >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Crear orden
+                  {isCreating ? "Procesando pago..." : "Pagar ahora"}
                 </Button>
                 <Button
                   variant="outline"

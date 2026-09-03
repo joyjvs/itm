@@ -3,15 +3,8 @@ import { persist } from "zustand/middleware";
 import type { User, AuthResponse } from "../types/auth.types";
 import { authService } from "../api/services/auth.service";
 import { setAuthToken, removeAuthToken } from "../api/client";
-
-const mockUser: User = {
-  id: "1",
-  name: "Juan Pérez",
-  email: "juan@example.com",
-  phone: "+1 234 567 890",
-  address: "Av. Principal 123, Ciudad",
-  createdAt: "2024-01-15",
-};
+import { showError, showInfo, showSuccess } from "../utils/toast";
+import { AUTH_EXPIRED_EVENT } from "../utils/authEvents";
 
 interface AuthState {
   user: User | null;
@@ -24,14 +17,20 @@ interface AuthState {
   register: (
     email: string,
     password: string,
-    name: string,
+    firstName: string,
     lastName: string,
+    address: string,
+    phone: string,
   ) => Promise<void>;
   logout: () => void;
   clearError: () => void;
   setUser: (user: User | null) => void;
-  changePassword: (currentPassword: string, newPassword: string) => void;
-  updateProfile: (data: Partial<User>) => Promise<void>;
+  changePassword: (
+    userid: string,
+    currentPassword: string,
+    newPassword: string,
+  ) => void;
+  updateProfile: (userid: string, data: Partial<User>) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -55,35 +54,49 @@ export const useAuthStore = create<AuthState>()(
             token: response.access_token,
             isLoading: false,
           });
+          showSuccess("Inicio de sesión correcto", "Bienvenido de nuevo.");
         } catch (error: unknown) {
           set({
-            error: "Error al iniciar sesión",
+            error: "Credenciales inválidas.",
             isLoading: false,
           });
           throw error;
         }
       },
 
-      register: async (email, password, name, lastName) => {
+      register: async (
+        email,
+        password,
+        firstName,
+        lastName,
+        address,
+        phone,
+      ) => {
         set({ isLoading: true, error: null });
         try {
-          const response: AuthResponse = await authService.register({
+          await authService.register({
             email,
             password,
-            name,
+            firstName,
             lastName,
+            address,
+            phone,
           });
-          setAuthToken(response.access_token);
           set({
-            user: response.user,
-            token: response.access_token,
             isLoading: false,
           });
+          showSuccess(
+            "Usuario creado",
+            "El usuario se registró correctamente.",
+          );
         } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : "Error al registrarse";
           set({
-            error: "Error al registrarse",
+            error: message,
             isLoading: false,
           });
+          showError("No se pudo crear el usuario", message);
           throw error;
         }
       },
@@ -91,26 +104,43 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         removeAuthToken();
         set({ user: null, token: null, error: null });
+        showInfo("Sesión cerrada", "Vuelve cuando quieras.");
       },
 
-      changePassword: async (currentPassword: string, newPassword: string) => {
+      changePassword: async (
+        userId: string,
+        currentPassword: string,
+        newPassword: string,
+      ) => {
         set({ isLoading: true, error: null });
         try {
-          await authService.changePassword(currentPassword, newPassword);
+          await authService.changePassword(
+            userId,
+            currentPassword,
+            newPassword,
+          );
           set({ isLoading: false });
         } catch (error) {
           set({ error: (error as Error).message, isLoading: false });
           throw error;
         }
       },
-      updateProfile: async (data: Partial<User>) => {
+      updateProfile: async (userId: string, data: Partial<User>) => {
         set({ isLoading: true, error: null });
         try {
-          // Llamada al servicio
-          const updatedUser = await authService.updateProfile(data);
+          const updatedUser = await authService.updateProfile(userId, data);
           set({ user: updatedUser, isLoading: false });
+          showSuccess(
+            "Perfil actualizado",
+            "Tus datos se guardaron correctamente.",
+          );
         } catch (error) {
-          set({ error: (error as Error).message, isLoading: false });
+          const message =
+            error instanceof Error
+              ? error.message
+              : "No se pudo actualizar el perfil";
+          set({ error: message, isLoading: false });
+          showError("No se pudo actualizar el perfil", message);
           throw error;
         }
       },
@@ -128,3 +158,9 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
+
+if (typeof window !== "undefined") {
+  window.addEventListener(AUTH_EXPIRED_EVENT, () => {
+    useAuthStore.getState().logout();
+  });
+}

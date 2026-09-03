@@ -1,38 +1,59 @@
-// src/types/product.types.ts
-import { PaginationMeta } from "./pagination.types";
+export interface ProductCategory {
+  id: string;
+  name: string;
+  description?: string;
+  parentId?: string | null;
+}
 
-// Interfaz de un Producto
 export interface Product {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  category: string;
-  image: string;
   stock: number;
-  year?: number; // Dato adicional del ejemplo anterior
+  categoryId: string;
+  category?: string | ProductCategory;
+  images: string[];
+  image?: string;
   createdAt: string;
   updatedAt: string;
+  year?: number;
+  slug?: string;
+  sku?: string;
+  status?: "active" | "inactive";
+  isWholesale?: boolean;
 }
 
-// Interfaz para la creación de un Producto (si aplica)
-export type CreateProductPayload = Omit<
-  Product,
-  "id" | "createdAt" | "updatedAt"
->;
+export type CreateProductPayload = {
+  name: string;
+  description?: string;
+  price: number;
+  stock: number;
+  categoryId: string;
+  images?: string[];
+  isWholesale?: boolean;
+};
 
-// Interfaz para los parámetros de filtrado
+export type UpdateProductPayload = Partial<CreateProductPayload>;
+
 export interface ProductFilters {
+  isWholesale?: boolean;
   search?: string;
-  category?: string;
+  categoryId?: string;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: "name" | "price" | "createdAt";
   sortOrder?: "asc" | "desc";
 }
 
-// Interfaz para la respuesta de la API (con paginación)
 export interface ProductsResponse {
   data: Product[];
-  meta: PaginationMeta;
+  meta: {
+    currentPage: number;
+    itemsPerPage: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }

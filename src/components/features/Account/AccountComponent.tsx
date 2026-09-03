@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
+  //DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
@@ -20,11 +20,9 @@ const AccountComponent = () => {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          // <Button variant="outline">Open</Button>
-
-          <div className="flex items-center gap-2 px-3 py-2 rounded-md">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer">
             <User />
-            <span className="text-sm font-medium">{user?.name}</span>
+            <span className="text-sm font-medium">{user?.firstName}</span>
           </div>
         }
       />
@@ -33,17 +31,17 @@ const AccountComponent = () => {
           <>
             <DropdownMenuGroup>
               <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
                 Perfil
-                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/me/orders/${user?.id}`)}>
                 Mis pedidos
-                <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⌘B</DropdownMenuShortcut> */}
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/change-password")}>
                 Cambiar Contraseña
-                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
@@ -52,7 +50,7 @@ const AccountComponent = () => {
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => logout()}>
                 Salir
-                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut> */}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </>
