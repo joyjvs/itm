@@ -24,12 +24,33 @@ import {
   SiInstagram,
   SiX,
 } from "@icons-pack/react-simple-icons";
+import { Globe2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import type { ComponentType, SVGProps } from "react";
+
+type SocialIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+const socialIconBySlug: Record<string, SocialIcon> = {
+  facebook: SiFacebook,
+  instagram: SiInstagram,
+  youtube: SiYoutube,
+  x: SiX,
+  twitter: SiX,
+};
+
+const getSocialIcon = (icon?: string): SocialIcon => {
+  const slug =
+    icon
+      ?.trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "") ?? "";
+  return socialIconBySlug[slug] ?? Globe2;
+};
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { information, fetchInformation } = useInformation();
-  const {user } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     void fetchInformation();
@@ -37,7 +58,7 @@ const Footer = () => {
 
   const quickLinks: FooterLink[] = [
     { label: "Productos", href: "/products" },
-     user?.role === "admin" ? { label: "Pedidos", href: "/bookings" } : null,
+    user?.role === "admin" ? { label: "Pedidos", href: "/bookings" } : null,
     { label: "Mis Pedidos", href: "/me/orders/:id" },
     // { label: "Contacto", href: "/contact" },
   ].filter((link): link is FooterLink => !!link);
@@ -48,12 +69,14 @@ const Footer = () => {
     { label: "Política de Cookies", href: "/cookies" },
   ];
 
-  const socialLinks = [
-    { icon: SiFacebook, href: "https://facebook.com", label: "Facebook" },
-    { icon: SiX, href: "https://twitter.com", label: "Twitter" },
-    { icon: SiInstagram, href: "https://instagram.com", label: "Instagram" },
-    { icon: SiYoutube, href: "https://youtube.com", label: "YouTube" },
-  ];
+  const socialLinks = (information?.socialNetworks ?? [])
+    .filter((social) => social.link?.trim())
+    .map((social, index) => ({
+      icon: getSocialIcon(social.icon),
+      href: social.link,
+      label:
+        social.name?.trim() || social.icon?.trim() || `Red social ${index + 1}`,
+    }));
 
   return (
     <footer className="bg-slate-50 border-t border-slate-200 dark:bg-slate-900 dark:border-slate-800">
