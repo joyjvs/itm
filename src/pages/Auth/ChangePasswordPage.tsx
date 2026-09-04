@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -10,7 +9,6 @@ import ChangePassowrdForm from "@/components/forms/ChangePassowrdForm";
 import AuthLogo from "@/components/common/AuthLogo";
 
 const ChangePasswordPage = () => {
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">

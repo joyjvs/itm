@@ -6,11 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/common/Card";
-import { useNavigate } from "react-router-dom";
 import AuthLogo from "@/components/common/AuthLogo";
 
 const LoginPage = () => {
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
