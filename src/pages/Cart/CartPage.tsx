@@ -25,6 +25,7 @@ import { CreateOrderPayload, DeliveryMethod } from "@/types/order.types";
 import { showError } from "@/utils/toast";
 import { CreatePaymentPayload } from "@/types/payment.types";
 import ProcessingPaymentOverlay from "@/components/features/ProcessingPaymentOverlay";
+import Alert from "@/components/common/Alert";
 
 const CartPage = () => {
   const {
@@ -50,6 +51,8 @@ const CartPage = () => {
   const { createPayment } = usePayment();
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
+  const [showAuthenticationMessage, setShowAuthenticationMessage] =
+    useState(false);
   const redirectingRef = useRef(false);
 
   if (items.length === 0) {
@@ -74,10 +77,13 @@ const CartPage = () => {
   }
 
   const create = async () => {
-    if (!user) return navigate("/auth/login");
+    if (!user) {
+      setShowAuthenticationMessage(true);
+      return;
+    }
     if (!user.address || user.address.length < 10) {
       // pedir al usuario que complete su dirección
-      return navigate("/auth/profile");
+      return navigate("/profile");
     }
     if (items.length === 0) {
       showError("Carrito vacío", "Agrega al menos un producto para continuar.");
@@ -274,6 +280,32 @@ const CartPage = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-2">
+                {showAuthenticationMessage && (
+                  <Alert
+                    variant="warning"
+                    title="Necesitas una cuenta para pagar"
+                    onClose={() => setShowAuthenticationMessage(false)}
+                  >
+                    <p>
+                      Crea una cuenta y luego inicia sesión para completar tu
+                      compra.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      <Link
+                        to="/register"
+                        className="font-semibold underline underline-offset-2"
+                      >
+                        Crear cuenta
+                      </Link>
+                      <Link
+                        to="/login"
+                        className="font-semibold underline underline-offset-2"
+                      >
+                        Iniciar sesión
+                      </Link>
+                    </div>
+                  </Alert>
+                )}
                 <Button
                   className="w-full bg-blue-950 hover:bg-blue-700"
                   onClick={() => create()}
