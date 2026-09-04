@@ -71,6 +71,12 @@ export const ENDPOINTS = {
     UPDATE: (id: string) => `/api/banners/${id}`,
     DELETE: (id: string) => `/api/banners/${id}`,
   },
+  INFORMATION: {
+    LIST: "/api/information",
+    CREATE: "/api/information",
+    UPDATE: (id: string) => `/api/information/${id}`,
+    DETAIL: (id: string) => `/api/information/${id}`,
+  },
   UPLOAD: {
     IMAGE: "/api/upload/image",
   },

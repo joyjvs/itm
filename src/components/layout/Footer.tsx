@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useInformation } from "@/hooks/useInformation";
 import {
   //Facebook,
   //Twitter,
@@ -7,9 +9,7 @@ import {
   Mail,
   Phone,
   MapPin,
-  //Calendar,
   Clock,
-  
 } from "lucide-react";
 
 interface FooterLink {
@@ -18,17 +18,29 @@ interface FooterLink {
   external?: boolean;
 }
 
-import { SiFacebook, SiYoutube, SiInstagram, SiX } from "@icons-pack/react-simple-icons";
+import {
+  SiFacebook,
+  SiYoutube,
+  SiInstagram,
+  SiX,
+} from "@icons-pack/react-simple-icons";
+import { useAuth } from "@/hooks/useAuth";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { information, fetchInformation } = useInformation();
+  const {user } = useAuth();
+
+  useEffect(() => {
+    void fetchInformation();
+  }, [fetchInformation]);
 
   const quickLinks: FooterLink[] = [
     { label: "Productos", href: "/products" },
-    { label: "Reservas", href: "/bookings" },
-    { label: "Mis Reservas", href: "/my-bookings" },
-    { label: "Contacto", href: "/contact" },
-  ];
+     user?.role === "admin" ? { label: "Pedidos", href: "/bookings" } : null,
+    { label: "Mis Pedidos", href: "/me/orders/:id" },
+    // { label: "Contacto", href: "/contact" },
+  ].filter((link): link is FooterLink => !!link);
 
   const legalLinks: FooterLink[] = [
     { label: "Términos y Condiciones", href: "/terms" },
@@ -133,34 +145,38 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start space-x-3">
                 <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 flex-shrink-0" />
-                <span className="text-sm text-slate-600 dark:text-slate-400">
-                  Av. Principal 1234,
-                  <br />
-                  Ciudad, País
+                <span className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-line">
+                  {information?.address ?? ""}
                 </span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                 <a
-                  href="tel:+1234567890"
+                  href={
+                    information?.phone ? `tel:${information.phone}` : undefined
+                  }
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
-                  +1 (234) 567-890
+                  {information?.phone ?? ""}
                 </a>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                 <a
-                  href="mailto:contacto@iberomax.com"
+                  href={
+                    information?.email
+                      ? `mailto:${information.email}`
+                      : undefined
+                  }
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
-                  contacto@iberomax.com
+                  {information?.email ?? ""}
                 </a>
               </li>
               <li className="flex items-center space-x-3">
                 <Clock className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                 <span className="text-sm text-slate-600 dark:text-slate-400">
-                  Lun - Vie: 9:00 - 18:00
+                  {information?.businessHours ?? ""}
                 </span>
               </li>
             </ul>

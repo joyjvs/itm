@@ -32,6 +32,7 @@ import { OrdersPageAdmin } from "@/pages/Admin/Orders";
 import CategoriesPage from "@/pages/Admin/Category/Categories";
 import BannersPage from "@/pages/Admin/Banners";
 import MyOrdersPage from "@/pages/Auth/MyOrders";
+import InformationPage from "@/pages/Admin/Information";
 
 // Componente para proteger rutas
 interface ProtectedRouteProps {
@@ -195,6 +196,15 @@ function RoutesComponents() {
           element={
             <ProtectedRoute>
               <UsersPageAdmin />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/information-admin"
+          element={
+            <ProtectedRoute>
+              <InformationPage />
             </ProtectedRoute>
           }
         />
