@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Menu, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,19 @@ import { useCart } from "@/hooks/useCart";
 import { Badge } from "@/components/ui/badge";
 import { AdminMenuComponent } from "../features/Admin/AdminMenuComponent";
 import { ProductMenuComponent } from "../features/Product/ProductMenuComponent";
+import { useInformation } from "@/hooks/useInformation";
+
+const DEFAULT_LOGO = "/logo.jpeg";
 
 const Header = () => {
   const navigate = useNavigate();
   const { toggleSidebar } = useUIStore();
   const { totalItems } = useCart();
+  const { information, fetchInformation } = useInformation();
+
+  useEffect(() => {
+    void fetchInformation();
+  }, [fetchInformation]);
 
   return (
     <header className="sticky top-0 z-50 bg-slate-50 border-b border-input backdrop-blur">
@@ -27,9 +36,13 @@ const Header = () => {
             <Menu className="h-5 w-5" />
           </Button>
           <img
-            src="/logo.jpeg"
+            src={information?.logo || DEFAULT_LOGO}
             alt="IberoMax"
             className="h-22 w-auto sm:h-12 md:h-22"
+            onError={(event) => {
+              if (event.currentTarget.src.endsWith(DEFAULT_LOGO)) return;
+              event.currentTarget.src = DEFAULT_LOGO;
+            }}
           />
 
           <div className="hidden md:flex items-center gap-4">
