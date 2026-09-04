@@ -102,6 +102,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        if (!useAuthStore.getState().token) return;
         removeAuthToken();
         set({ user: null, token: null, error: null });
         showInfo("Sesión cerrada", "Vuelve cuando quieras.");
