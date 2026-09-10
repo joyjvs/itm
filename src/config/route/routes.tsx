@@ -33,6 +33,7 @@ import CategoriesPage from "@/pages/Admin/Category/Categories";
 import BannersPage from "@/pages/Admin/Banners";
 import MyOrdersPage from "@/pages/Auth/MyOrders";
 import InformationPage from "@/pages/Admin/Information";
+import { QrGeneratorPage } from "@/pages/Admin/QrGenerator";
 
 // Componente para proteger rutas
 interface ProtectedRouteProps {
@@ -44,6 +45,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const AdminProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user?.role?.includes("admin")) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -205,6 +220,15 @@ function RoutesComponents() {
             <ProtectedRoute>
               <InformationPage />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/qr-admin"
+          element={
+            <AdminProtectedRoute>
+              <QrGeneratorPage />
+            </AdminProtectedRoute>
           }
         />
 

@@ -14,7 +14,7 @@ const Sidebar = () => {
   const navLinks = [
     { href: "/", label: "Inicio" },
     { href: "/products", label: "Productos Minoristas" },
-    { href: "/products/true", label: "Productos Mayoristas" },
+    { href: "/products/true", label: "Ventas por Parlet" },
     { href: "/about", label: "Sobre nosotros" },
   ];
 
@@ -36,6 +36,7 @@ const Sidebar = () => {
         { href: "/products-admin", label: "Productos" },
         { href: "/banners-admin", label: "Banners" },
         { href: "/orders-admin", label: "Órdenes" },
+        { href: "/qr-admin", label: "Genere QR" },
       ]
     : [];
 

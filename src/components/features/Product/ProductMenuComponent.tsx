@@ -28,7 +28,7 @@ export const ProductMenuComponent = () => {
             {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate("/products/true")}>
-            Mayorista
+            Venta por parlet
             {/* <DropdownMenuShortcut>⌘B</DropdownMenuShortcut> */}
           </DropdownMenuItem>
         </DropdownMenuGroup>

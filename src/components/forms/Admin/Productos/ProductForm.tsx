@@ -175,7 +175,7 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
                 className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
               />
               <FieldLabel htmlFor="isWholesale" className="text-sm font-medium">
-                Venta mayorista
+                Venta por Parlet
               </FieldLabel>
             </>
           )}

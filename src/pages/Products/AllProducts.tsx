@@ -23,7 +23,7 @@ const AllProducts = () => {
   const isWholesaleMode = isWholesale === "true";
 
   const pageTitle = isWholesaleMode
-    ? "Productos Mayoristas"
+    ? "Ventas por Parlet"
     : "Productos Minoristas";
 
   useEffect(() => {
