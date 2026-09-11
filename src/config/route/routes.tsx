@@ -34,6 +34,7 @@ import BannersPage from "@/pages/Admin/Banners";
 import MyOrdersPage from "@/pages/Auth/MyOrders";
 import InformationPage from "@/pages/Admin/Information";
 import { QrGeneratorPage } from "@/pages/Admin/QrGenerator";
+import AboutAdminPage from "@/pages/Admin/About";
 
 // Componente para proteger rutas
 interface ProtectedRouteProps {
@@ -220,6 +221,15 @@ function RoutesComponents() {
             <ProtectedRoute>
               <InformationPage />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/about-admin"
+          element={
+            <AdminProtectedRoute>
+              <AboutAdminPage />
+            </AdminProtectedRoute>
           }
         />
 

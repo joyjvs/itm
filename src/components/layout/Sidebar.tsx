@@ -37,6 +37,7 @@ const Sidebar = () => {
         { href: "/banners-admin", label: "Banners" },
         { href: "/orders-admin", label: "Órdenes" },
         { href: "/qr-admin", label: "Genere QR" },
+        { href: "/about-admin", label: "Acerca de Nosotros" },
       ]
     : [];
 
